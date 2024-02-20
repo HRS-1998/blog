@@ -21,7 +21,8 @@ jobs:
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
-        with:
+        with: 
+        # 这一步需要在github当前库的setting中设置  setting/action/general/Workflow permissions (第一个  并且设置allow)
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/dist
 
