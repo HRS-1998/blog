@@ -8,7 +8,7 @@ export default defineConfig({
   titleTemplate: 'cy',
   description: '一个前端学习的地方',
   head: [['link', { rel: 'icon', href: '/dw.png' }]],
-  base: '/',
+  base: '/blog/',
   srcDir: './src',
   outDir: './dist',
   assetsDir: 'static',
