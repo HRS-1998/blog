@@ -34,6 +34,7 @@ export default defineConfig({
       { text: 'Css', },
       { text: 'Canvas', },
       { text: 'Svg', },
+      { text: '日常问题', link: "/ways/index.md" }
     ],
     socialLinks: [
       { icon: 'github', link: 'https://github.com/HRS-1998/' }]
