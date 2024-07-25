@@ -1,1 +1,0 @@
-import{_ as e,c as a,o as t}from"./chunks/framework.DBd-Bw_Q.js";const l=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"api-examples.md","filePath":"api-examples.md","lastUpdated":1720147521000}'),s={name:"api-examples.md"};function p(r,o,c,n,i,m){return t(),a("div")}const _=e(s,[["render",p]]);export{l as __pageData,_ as default};
