@@ -18,15 +18,15 @@ export default defineConfig({
     // 主题级选项
     logo: '/dw.png',
     nav: [
-      { text: '导航一', link: 'https://github.com/HRS-1998/' },
-      { text: '导航二', link: 'https://github.com/HRS-1998/' },
-      { text: '导航三', link: 'https://github.com/HRS-1998/' },
+      { text: '导航一', link: 'https://github.com/HRS-1998/blog' },
+      { text: '导航二', link: 'https://github.com/HRS-1998/blog' },
+      { text: '导航三', link: 'https://github.com/HRS-1998/nestjs' },
     ],
     sidebar: [
       {
         text: 'Vue', items: [
-          { text: 'page1', link: '/page1/index.md' },
-          { text: 'page2', link: '/page2/index.md' },
+          { text: 'Docker', link: '/page1/index.md' },
+          { text: 'Css', link: '/page2/index.md' },
         ],
         collapsed: true,
       },
