@@ -13,16 +13,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm i pnpm -g
+      - run: npm i pnpm@7 -g
       - run: pnpm install --frozen-lockfile
-
       - name: Build
         run: pnpm docs:build
 
       - name: Deploy
         uses: peaceiris/actions-gh-pages@v3
-        with: 
-        # 这一步需要在github当前库的setting中设置  setting/action/general/Workflow permissions (第一个  并且设置allow)
+        with:
+          # 这一步需要在github当前库的setting中设置  setting/action/general/Workflow permissions (第一个  并且设置allow)
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: docs/dist
-
