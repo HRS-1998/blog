@@ -13,6 +13,7 @@ export default defineConfig({
   assetsDir: "static",
   appearance: true,
   lastUpdated: true,
+  ignoreDeadLinks: true,//这里打包时忽略本地链接导致的无效
   themeConfig: {
     // 主题级选项
     logo: "/pg.jpg",
