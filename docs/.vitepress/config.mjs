@@ -27,88 +27,77 @@ export default defineConfig({
       {
         text: "Html",
         items: [
-          { text: "page1", link: "pages/page1/index.md" },
-          { text: "page2", link: "pages/page2/index.md" },
+          { text: "page1", link: "pages/html/index.md" },
         ],
         collapsed: true,
       },
       {
         text: "Css",
         items: [
-          { text: "page1", link: "pages/page1/index.md" },
-          { text: "page2", link: "pages/page2/index.md" },
+          { text: "page1", link: "pages/css/index.md" },
         ],
         collapsed: true,
       },
       {
         text: "Js ",
         items: [
-          { text: "page1", link: "pages/page1/index.md" },
-          { text: "page2", link: "pages/page2/index.md" },
+          { text: "page1", link: "pages/js/index.md" },
         ],
         collapsed: true,
       },
       {
         text: "Vue",
         items: [
-          { text: "page1", link: "pages/page1/index.md" },
-          { text: "page2", link: "pages/page2/index.md" },
+          { text: "page1", link: "pages/vue/index.md" },
         ],
         collapsed: true,
       },
       {
         text: "React",
         items: [
-          { text: "page1", link: "pages/page1/index.md" },
-          { text: "page2", link: "pages/page2/index.md" },
+          { text: "page1", link: "pages/react/index.md" },
         ],
         collapsed: true,
       },
       {
         text: "移动端",
         items: [
-          { text: "page1", link: "pages/page1/index.md" },
-          { text: "page2", link: "pages/page2/index.md" },
+          { text: "page1", link: "pages/mobile/index.md" },
         ],
         collapsed: true,
       },
       {
         text: "3D、地图",
         items: [
-          { text: "page1", link: "pages/page1/index.md" },
-          { text: "page2", link: "pages/page2/index.md" },
+          { text: "page1", link: "pages/3d/index.md" },
         ],
         collapsed: true,
       },
       {
         text: "工程化",
         items: [
-          { text: "page1", link: "pages/page1/index.md" },
-          { text: "page2", link: "pages/page2/index.md" },
+          { text: "page1", link: "pages/enginee/index.md" },
         ],
         collapsed: true,
       },
       {
         text: "Http",
         items: [
-          { text: "page1", link: "pages/page1/index.md" },
-          { text: "page2", link: "pages/page2/index.md" },
+          { text: "page1", link: "pages/http/index.md" },
         ],
         collapsed: true,
       },
       {
         text: "Nodejs",
         items: [
-          { text: "page1", link: "pages/page1/index.md" },
-          { text: "page2", link: "pages/page2/index.md" },
+          { text: "page1", link: "pages/node/index.md" },
         ],
         collapsed: true,
       },
       {
         text: "小程序",
         items: [
-          { text: "page1", link: "pages/page1/index.md" },
-          { text: "page2", link: "pages/page2/index.md" },
+          { text: "page1", link: "pages/minprogram/index.md" },
         ],
         collapsed: true,
       },
@@ -116,7 +105,7 @@ export default defineConfig({
       {
         text: "手写系列",
         items: [
-          { text: "常见手写实现", link: "pages/shouxie/index.md" },
+          { text: "常见手写实现", link: "pages/interview/index.md" },
 
         ],
         collapsed: true,
@@ -124,8 +113,7 @@ export default defineConfig({
       {
         text: "部署",
         items: [
-          { text: "page1", link: "pages/page1/index.md" },
-          { text: "page2", link: "pages/page2/index.md" },
+          { text: "page1", link: "pages/deploy/index.md" },
         ],
         collapsed: true,
       },
