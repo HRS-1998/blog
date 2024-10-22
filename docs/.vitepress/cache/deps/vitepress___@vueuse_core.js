@@ -11,8 +11,6 @@ import {
   breakpointsSematic,
   breakpointsTailwind,
   breakpointsVuetify,
-  breakpointsVuetifyV2,
-  breakpointsVuetifyV3,
   bypassFilter,
   camelize,
   clamp,
@@ -273,7 +271,7 @@ import {
   watchTriggerable,
   watchWithFilter,
   whenever
-} from "./chunk-WBYXAOFP.js";
+} from "./chunk-MOMSUACK.js";
 import "./chunk-CKQ4TNQ3.js";
 export {
   DefaultMagicKeysAliasMap,
@@ -290,8 +288,6 @@ export {
   breakpointsSematic,
   breakpointsTailwind,
   breakpointsVuetify,
-  breakpointsVuetifyV2,
-  breakpointsVuetifyV3,
   bypassFilter,
   camelize,
   clamp,

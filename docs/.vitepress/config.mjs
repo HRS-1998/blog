@@ -111,6 +111,14 @@ export default defineConfig({
         collapsed: true,
       },
       {
+        text: "设计模式",
+        items: [
+          { text: "常见14种设计模式", link: "pages/designPattern/index.md" },
+
+        ],
+        collapsed: true,
+      },
+      {
         text: "部署",
         items: [
           { text: "page1", link: "pages/deploy/index.md" },
