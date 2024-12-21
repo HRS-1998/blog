@@ -68,9 +68,24 @@ createIframe("http://www.baidu.com");
 createIframe("http://www.sina.com.cn"); //只创建了一次iframe
 ```
 
-})
+2.策略模式
 
-```
+```js
+// 将算法和实现解耦
+function A(salary) {
+  return salary * 0.8;
+}
+function B(salary) {
+  return salary * 0.9;
+}
+function C(salary) {
+  return salary * 1.1;
+}
+function calculateSalary(func, salary) {
+  return func(salary);
+}
+//使用
+calculateSalary(A, 10000); // 8000
 
-
+//这里有个策略模式的应用场景，结合缓存算法实现动画，仔细的按照书看一看
 ```
