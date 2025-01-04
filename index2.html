@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      .container {
+        width: 200px;
+        height: 600px;
+        border: 1px solid #000; /* 为了可视化容器 */
+        overflow: visible; /* 允许内容溢出 */
+        position: relative; /* 为 box1 的定位提供参考 */
+      }
+
+      .box1 {
+        width: 500px;
+        height: 300px;
+        background-color: #ffcccc; /* 为了可视化 box1 */
+        position: absolute; /* 使 box1 可以超出 container */
+        top: 0;
+        left: 0;
+      }
+
+      .box2 {
+        width: 300px;
+        height: 300px;
+        background-color: #ccccff; /* 为了可视化 box2 */
+        position: absolute; /* 使 box2 可以居中 */
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); /* 居中 */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="box1">Box 1</div>
+      <div class="box2">Box 2</div>
+    </div>
+  </body>
+</html>

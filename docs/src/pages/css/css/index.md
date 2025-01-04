@@ -1,6 +1,6 @@
-### <p align='center'>css 相关记录</p>
+# css 相关记录
 
-#### **一、CSS 关键字： initial、inherit、unset、revert**
+## 一、CSS 关键字： initial、inherit、unset、revert
 
 [参考文档](https://juejin.cn/post/6987565731881680903?searchId=20231226152245E2E582F98F4EAE4646E5)
 
@@ -21,7 +21,7 @@
 }
 ```
 
-#### **二、CSS 动画：translate、transform、transition、animation**
+## 二、CSS 动画：translate、transform、transition、animation
 
 [参考文档](https://juejin.cn/post/6844903615920898056?searchId=202312261522023DD164F7DE8C29461673)
 ![动画属性](./imgs//css动画.png)
@@ -57,7 +57,7 @@
 </html>
 ```
 
-#### **三、媒体查询**
+## 三、媒体查询
 
 [参考文档](https://juejin.cn/post/7021398878461100040?searchId=20231226164559F4A155E36300034FA5E0)
 
@@ -77,7 +77,7 @@
 }
 ```
 
-#### **四、requestAnimationFrame**
+## 四、requestAnimationFrame
 
 [参考文档](https://juejin.cn/post/6991297852462858277?searchId=2023122616345582E63AD853D1BB2D4BE6)
 [案例 ](./htmldemo/index_requestAnimationFrame.html)
@@ -100,7 +100,7 @@ setTimeout(() => {
 }, 10000);
 ```
 
-#### **五、css 滤镜 filter**
+## 五、css 滤镜 filter
 
 [参考文档](https://juejin.cn/post/7002829486806794276?searchId=20231227081503C8FCD3092656DD9B892A)
 [案例 01](./htmldemo/index_filter01.html) &emsp; [案例 02](./htmldemo/filter.html)&emsp;[案例 03](./htmldemo/index_filter03.html)&emsp;[案例 04](./htmldemo/index_filter04.html)&emsp;[案例 05](./htmldemo/index_filter05.html)
@@ -143,7 +143,7 @@ filter: contrast(175%) brightness(3%);
 filter: none;
 ```
 
-#### **六、css box-\***
+## 六、css box-\*
 
 [参考文档 1](https://developer.mozilla.org/en-US/docs/Web/CSS/box-decoration-break)&emsp;[参考文档 2](https://juejin.cn/post/6844903784406073352)
 
@@ -164,7 +164,7 @@ box-shadow: 1px 3px 4px red;
 box-sizing: content-box | border-box;
 ```
 
-#### **七、css text-\***
+## 七、css text-\*
 
 [参考文档](https://developer.mozilla.org/zh-CN/docs/Web/CSS/text-decoration-color)
 
@@ -183,7 +183,7 @@ text-shadow: 1px 1px 2px black; /**offsetx,offsety,blur-radius, color */
 text-transform:uppercase  /**文字大小写 */
 ```
 
-#### **八、css 居中**
+## 八、css 居中
 
 [参考文档](https://juejin.cn/post/6997020797323706404)
 
@@ -199,7 +199,7 @@ transform:(-50%,-50%);
 
 ![css居中](./imgs//css_center.png#csscenter)
 
-#### **九、css 文字展开收起**
+## 九、css 文字展开收起
 
 <style>
   img[src*="#csscenter"]{

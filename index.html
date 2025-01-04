@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+      }
+      li {
+        list-style-type: none;
+      }
+      body {
+        min-width: 1200px;
+        height: 100%;
+      }
+      header {
+        height: 200px;
+        background-color: transparent;
+        position: fixed;
+
+        z-index: 99;
+        div {
+          min-width: 1200px;
+          background-color: red;
+          ul {
+            margin-top: 0px;
+            height: 60px;
+            display: flex;
+            justify-content: space-between;
+
+            li {
+              list-style: none;
+              /* color: white; */
+
+              font-size: 20px;
+              width: 60px;
+              height: 60px;
+              background-color: white;
+            }
+          }
+        }
+      }
+      main {
+        /* margin-top: 200px; */
+        /* height: calc(100vh - 200px); */
+        /* width: 100%; */
+        height: 100vh;
+
+        width: 1200px;
+        margin: 0 auto;
+        overflow: visible;
+        .p1 {
+          background-color: blue;
+          position: absolute;
+          top: 200px;
+          width: 100vw;
+          height: calc(100vw - 200px);
+        }
+        .p2 {
+          background-color: greenyellow;
+          height: 200px;
+        }
+      }
+      footer {
+        height: 200px;
+        background-color: green;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div id="myHeader">
+        <ul>
+          <li>1</li>
+          <li>2</li>
+          <li>3</li>
+          <li>4</li>
+        </ul>
+      </div>
+    </header>
+    <main>
+      <p class="p1">1111</p>
+      <p class="p2">22233333333333333333</p>
+    </main>
+    <footer>
+      <p>333</p>
+    </footer>
+    <script>
+      window.onload = function () {
+        window.addEventListener("scroll", function () {
+          const header = document.getElementById("myHeader");
+          console.log(header);
+          //   header.setAttribute("style", "background:green;");
+          if (window.scrollX) {
+            header.setAttribute(
+              "style",
+              "transform:translateX(-" + window.scrollX + "px)"
+            );
+            currentScrollX = window.scrollX;
+          }
+        });
+        window.addEventListener("resize", function () {
+          const header = document.getElementById("myHeader");
+          //屏幕最小宽度1200
+          //当前window.scrollX的值是多少，当前屏幕的可视区域宽度是多少,
+          //当rize时，如果当前可视区域宽度 + 当前滚动的值小于1200时，保持原来的滚动值，否则就更新translateX
+          //   header.setAttribute("style", "transform:translateX(0)");
+          function updateTranslateX(translateX) {
+            requestAnimationFrame(() => {
+              header.setAttribute(
+                "style",
+                "transform:translateX(-" + translateX + "px)"
+              );
+            });
+            // updateTranslateX();
+          }
+          if (window.innerWidth + window.scrollX <= 1200) {
+          } else {
+            // updateTranslateX(1200 - window.innerWidth);
+            const translateX = 1200 - window.innerWidth;
+            header.setAttribute(
+              "style",
+              "transform:translateX(-" + translateX + "px)"
+            );
+          }
+        });
+      };
+    </script>
+  </body>
+</html>

@@ -34,74 +34,55 @@ export default defineConfig({
       {
         text: "Css",
         items: [
-          { text: "page1", link: "pages/css/index.md" },
+          { text: "css", link: "pages/css/css/index.md" },
+          { text: "sass", link: "pages/css/sass/index.md" },
+          { text: "tailwindcss", link: "pages/css/tailwindcss/index.md" },
+
         ],
         collapsed: true,
       },
       {
-        text: "Js ",
+        text: "语言系列",
         items: [
-          { text: "page1", link: "pages/js/index.md" },
+          { text: "js", link: "pages/js/index.md" },
+          { text: "ts", link: "pages/js/index.md" },
+          { text: "node", link: "pages/js/index.md" },
         ],
         collapsed: true,
       },
       {
-        text: "Vue",
+        text: "框架库",
         items: [
-          { text: "page1", link: "pages/vue/index.md" },
-        ],
-        collapsed: true,
-      },
-      {
-        text: "React",
-        items: [
-          { text: "page1", link: "pages/react/index.md" },
-        ],
-        collapsed: true,
-      },
-      {
-        text: "移动端",
-        items: [
-          { text: "page1", link: "pages/mobile/index.md" },
-        ],
-        collapsed: true,
-      },
-      {
-        text: "3D、地图",
-        items: [
-          { text: "page1", link: "pages/3d/index.md" },
+          { text: "vue", link: "pages/vue/index.md" },
+          { text: "react", link: "pages/vue/index.md" },
         ],
         collapsed: true,
       },
       {
         text: "工程化",
         items: [
-          { text: "page1", link: "pages/enginee/index.md" },
+          { text: "postcss", link: "pages/enginee/postcss/index.md" },
         ],
         collapsed: true,
       },
       {
-        text: "Http",
+        text: "网络",
         items: [
-          { text: "page1", link: "pages/http/index.md" },
+          { text: "page1", link: "pages/react/index.md" },
         ],
         collapsed: true,
       },
       {
-        text: "Nodejs",
+        text: "源码系列",
         items: [
-          { text: "page1", link: "pages/node/index.md" },
+          { text: "promise", link: "pages/minprogram/index.md" },
+          { text: "axios", link: "pages/minprogram/index.md" },
+          { text: "vue", link: "pages/minprogram/index.md" },
+          { text: "react", link: "pages/minprogram/index.md" },
+          { text: "webpack", link: "pages/minprogram/index.md" },
         ],
         collapsed: true,
       },
-      {
-        text: "小程序",
-        items: [
-          { text: "page1", link: "pages/minprogram/index.md" },
-        ],
-        collapsed: true,
-      },
-
       {
         text: "手写系列",
         items: [
@@ -128,5 +109,10 @@ export default defineConfig({
 
     ],
     socialLinks: [{ icon: "github", link: "https://github.com/HRS-1998/" }],
+    outlineTitle: "页面目录",
+    footer: {
+      message: "Released under the MIT License.",
+      copyright: "Copyright © 2023-present yemei",
+    },
   },
 });
