@@ -24,13 +24,13 @@
 ## 二、CSS 动画：translate、transform、transition、animation
 
 [参考文档](https://juejin.cn/post/6844903615920898056?searchId=202312261522023DD164F7DE8C29461673)
-![动画属性](./imgs//css动画.png)
+![动画属性](../images/css动画.png)
 
 > 1.transition 过渡，其有四个参数 transition-property、transition-duration、transition-timing-function、transition-delay
-> ![动画属性](./imgs//css_transition.png)
+> ![动画属性](../images/css_transition.png)
 
 > 2.  animation 动画，有 8 个参数 name 、duration 、timing-function、 delay 、iteration-count、 direction、 play-state、 fill-mode;
->     ![动画属性](./imgs//css_animation.png)
+>     ![动画属性](../images/css_animation.png)
 > 3.  translate 平移,沿 x 轴、y 轴
 >
 > 4.  transform 形变，包含 rotate,scale,skew 等可以同时执行一个或多个，transform-origin 可以改变图形的原点,perspective 距离 3D 页面视口的距离
@@ -197,7 +197,7 @@ left:50%;
 transform:(-50%,-50%);
 ```
 
-![css居中](./imgs//css_center.png#csscenter)
+![css居中](../images/css_center.png#csscenter)
 
 ## 九、css 文字展开收起
 
