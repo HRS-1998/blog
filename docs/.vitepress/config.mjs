@@ -100,6 +100,14 @@ export default defineConfig({
         collapsed: true,
       },
       {
+        text: "日常记录",
+        items: [
+          { text: "随机记录", link: "pages/dailyRecord/index.md" },
+
+        ],
+        collapsed: true,
+      },
+      {
         text: "部署",
         items: [
           { text: "page1", link: "pages/deploy/index.md" },
