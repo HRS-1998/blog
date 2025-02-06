@@ -25,14 +25,14 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: "Html",
+        text: "HTML",
         items: [
           { text: "page1", link: "pages/html/index.md" },
         ],
         collapsed: true,
       },
       {
-        text: "Css",
+        text: "CSS",
         items: [
           { text: "css", link: "pages/css/css/index.md" },
           { text: "sass", link: "pages/css/sass/index.md" },
@@ -44,7 +44,14 @@ export default defineConfig({
       {
         text: "语言系列",
         items: [
-          { text: "js", link: "pages/js/index.md" },
+          {
+            text: "js", items: [
+              { text: "基础", link: "pages/js/index.md" },
+              { text: "ao和vo", link: "pages/js/ao和vo.md" },
+              { text: "函数重载", link: "pages/js/函数重载.md" },
+            ],
+            collapsed: true
+          },
           { text: "ts", link: "pages/js/index.md" },
           { text: "node", link: "pages/js/index.md" },
         ],
