@@ -49,6 +49,8 @@ export default defineConfig({
               { text: "基础", link: "pages/js/index.md" },
               { text: "ao和vo", link: "pages/js/ao和vo.md" },
               { text: "函数重载", link: "pages/js/函数重载.md" },
+              { text: "promise及其应用", link: "pages/js/promise.md" },
+
             ],
             collapsed: true
           },

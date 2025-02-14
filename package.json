@@ -16,5 +16,8 @@
   "devDependencies": {
     "husky": "^9.1.6",
     "vitepress": "1.0.0-rc.44"
+  },
+  "dependencies": {
+    "cac": "^6.7.14"
   }
 }

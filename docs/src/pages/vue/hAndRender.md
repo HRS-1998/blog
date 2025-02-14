@@ -7,7 +7,7 @@
 ```jsx
 <ul>
 {items.value.map(item=>{
-    return <li key='item.id'>{{item.text}}</li>}s
+    return <li key='item.id'>{{item.text}}</li>}
 })
 
 </ul>

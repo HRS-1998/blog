@@ -93,9 +93,3 @@ el.scrollIntoView({
 ```
 
 ## node 命令行工具 cac 库
-
-这里看 index.js 文件，可以看到用到了 cac 库，可以用来处理命令行参数。
-
-## vite 调试 vue 项目
-
-[vite 调试 vue 项目](https://juejin.cn/post/7396463744187711497)
