@@ -39,4 +39,20 @@
       <div class="box2">Box 2</div>
     </div>
   </body>
+  <script>
+    {
+      let localVar = new Uint8Array(1000000000);
+      function dirtyFunc3() {
+        return localVar;
+      }
+      function cleanFunc() {}
+    }
+    var dirtyFunc3 = null;
+    console.dir(cleanFunc);
+    // ƒ cleanFunc()
+    //   [[Scopes]]: Scopes[2]
+    //     0: Block
+    //       localVar: Uint8Array(1000000000) [0, 0, …]
+    //     1: Global {type: "global", name: "", object: Window}
+  </script>
 </html>

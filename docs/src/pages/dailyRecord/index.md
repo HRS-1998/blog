@@ -99,3 +99,9 @@ el.scrollIntoView({
 ## vite 调试 vue 项目
 
 [vite 调试 vue 项目](https://juejin.cn/post/7396463744187711497)
+
+## nuxt 项目
+
+[nuxt 项目](https://juejin.cn/post/7236635191379509308)
+[nuxt 项目 pinia](https://www.mulingyuer.com/archives/1000/#comments)
+[nuxt 项目 i18n](https://juejin.cn/post/7303348013933035559)
