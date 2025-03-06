@@ -109,6 +109,14 @@ export default defineConfig({
         collapsed: true,
       },
       {
+        text: "数据结构",
+        items: [
+          { text: "基础", link: "pages/dataStructure/index.md" },
+
+        ],
+        collapsed: true,
+      },
+      {
         text: "日常记录",
         items: [
           { text: "随机记录", link: "pages/dailyRecord/index.md" },

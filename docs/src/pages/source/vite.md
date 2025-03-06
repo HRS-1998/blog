@@ -14,11 +14,18 @@ string.startsWith('vite')
 
 <!-- ts内置 -->
 
-Omit<T, K extends keyof T> // 去掉 T 中的 K 属性
-Pick<T, K extends keyof T> // 保留 T 中的 K 属性
-Record<K extends string, T> // 构造一个 K-T 的对象 创建键类型为 Keys，值类型为 Type 的对象类型
-Partial<T> // 构造一个 T 的部分属性
-Required<T> // 构造一个 T 的必填属性
+```ts
+Omit<T, K extends keyof T> //去掉 T 中的 K 属性
+
+Pick<T, K extends keyof T> //保留 T 中的 K 属性
+
+Record<K extends string, T> //构造一个 K-T 的对象 创建键类型为 Keys，值类型为 Type 的对象类型
+
+Partial<T> //构造一个 T 的部分属性
+
+Required<T> //构造一个 T 的必填属性
+
+```
 
 ```js
 import module from 'node:module';
@@ -28,11 +35,12 @@ function start(){
     }catch(e){}
    return import("../dist/node/cli.js")
 }
+
 ```
 
 2. cli.ts
 
-```ts
+```js
 stopProfilerh(); //性能分析函数 cup profile
 
 filterDuplicateOptions(); //过滤重复选项
@@ -48,7 +56,7 @@ cleanBuildOptions(); //清理构建选项
 
 引用 cac 库
 
-```ts
+```js
 // 注册选项
 cli.option("-f,--filter <filter>", "filter files by pattern");
 
@@ -72,7 +80,7 @@ cli
 
 > dev
 
-```ts
+```js
  const {createServer} = await import('./server')
  function createServer(inlineConfig:InlineConfig=>{}):Promise<ViteDevServer>{
     return _createServer(inlineConfig,{listen:true})
@@ -92,8 +100,6 @@ cli
 
       debugger = createDebugger('vite:server')
 
-
-  //
 /**
  * server/* 有关类
  *

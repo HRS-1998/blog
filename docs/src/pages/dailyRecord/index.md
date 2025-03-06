@@ -105,3 +105,9 @@ el.scrollIntoView({
 [nuxt 项目](https://juejin.cn/post/7236635191379509308)
 [nuxt 项目 pinia](https://www.mulingyuer.com/archives/1000/#comments)
 [nuxt 项目 i18n](https://juejin.cn/post/7303348013933035559)
+
+## vscode 运行 c
+
+1. [安装 gcc 配置系统变量]](https://blog.csdn.net/qq_38196449/article/details/136125995)
+
+2. 安装 vscode 插件 code runner 和 C/C++ Extension Pack
