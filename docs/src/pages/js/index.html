@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      #app {
+        width: 20vw;
+        #content {
+          width: 100%;
+          height: 0;
+          padding-top: 100%;
+          background-color: red;
+        }
+      }
+      #app1 {
+        margin-top: 10px;
+        width: 20vw;
+        aspect-ratio: 1;
+        background-color: blue;
+      }
+      #app2 {
+        margin-top: 10px;
+        height: 0;
+        width: 0;
+        border: 10px solid transparent;
+        /*         border-top: 10px solid blue; */
+        border-bottom: 10px solid blue;
+        /* border-right: 10px solid blue; */
+        /* border-left: 10px solid blue; */
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div id="content"></div>
+    </div>
+
+    <div id="app1"></div>
+
+    <div id="app2"></div>
+  </body>
+</html>
