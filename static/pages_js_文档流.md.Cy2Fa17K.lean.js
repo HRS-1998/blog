@@ -1,0 +1,1 @@
+import{_ as e,c as t,o as a}from"./chunks/framework.Dr1n16L8.js";const m=JSON.parse('{"title":"","description":"","frontmatter":{},"headers":[],"relativePath":"pages/js/文档流.md","filePath":"pages/js/文档流.md","lastUpdated":1741837989000}'),s={name:"pages/js/文档流.md"};function r(o,c,n,p,_,d){return a(),t("div")}const f=e(s,[["render",r]]);export{m as __pageData,f as default};
