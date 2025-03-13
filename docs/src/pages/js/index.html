@@ -30,6 +30,9 @@
         /* border-right: 10px solid blue; */
         /* border-left: 10px solid blue; */
       }
+      #app3 {
+        color: black;
+      }
     </style>
   </head>
   <body>
@@ -40,5 +43,18 @@
     <div id="app1"></div>
 
     <div id="app2"></div>
+    <div id="app3"></div>
+    <div id="app4"></div>
+    <div id="app5"></div>
   </body>
+  <script>
+    window.onload = function () {
+      document.getElementById("app3").textContent =
+        "<div><p>是否会转义1</p></div>";
+      document.getElementById("app4").innerHTML =
+        "<div><p>是否会转义2</p></div>";
+      document.getElementById("app5").innerText =
+        "<div><p>是否会转义3</p></div>";
+    };
+  </script>
 </html>
