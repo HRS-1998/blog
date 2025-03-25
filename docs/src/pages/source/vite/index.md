@@ -66,15 +66,6 @@ interface Config {
 > build API
 > Build API 调用对文件系统中的一个或多个文件进行操作。这使得文件可以相互引用，并被编译在一起（需要设置 bundle: true）
 
-```ts
-// buildSync(options: Config):buildResult
-// buildSync(options: Config):Promise<buildResult>
-interface BuildResult {
-  warnings: Message[];
-  outputFiles?: OutputFile[]; // 只有在 write 为 false 时，才会输出，它是一个 Uint8Array
-}
-```
-
 Config 配置
 
 ```ts
@@ -109,6 +100,71 @@ interface Config {
   metafile: boolean       // 生成依赖图
 }
 ```
+
+```ts
+// buildSync(options: Config):buildResult
+// buildSync(options: Config):Promise<buildResult>
+interface BuildResult {
+  warnings: Message[];
+  outputFiles?: OutputFile[]; // 只有在 write 为 false 时，才会输出，它是一个 Uint8Array
+}
+// 示例
+require("esbuild")
+  .build({
+    entryPoints: ["index.js"],
+    bundle: true,
+    metafile: true,
+    format: "esm",
+    outdir: "dist",
+    plugins: [],
+  })
+  .then((res) => {
+    console.log(res);
+  });
+```
+
+#### 常用配置
+
+##### outbase
+
+```ts
+outbase: string;
+```
+
+多入口文件在不同目录时，那么相对于 outbase 目录，目录结构将被复制到输出目录中
+
+```ts
+require("esbuild").buildSync({
+  entryPoints: ["src/pages/home/index.ts", "src/pages/about/index.ts"],
+  bundle: true,
+  outdir: "out",
+  outbase: "src",
+});
+```
+
+上面代码中，有两个入口文件分别是<span style="color:red">src/home/index.ts、src/about/index.ts</span>；并设置 outbase 为 src，即相对于 ==src== 目录打包；打包后文件分别在<span style="color:red"> out/home/index.ts、out/about/index.ts</span>
+
+##### bundle
+
+```ts
+bundle: boolean;
+```
+
+如果是 true，将依赖项内联到文件本身中。 此过程是递归的，因此依赖项的依赖项也将被合并，默认情况下，ESbuild 不会捆绑输入文件，即为 false。对于动态的模块名不会合并而是和源码保持一致，如下
+
+```ts
+// Static imports (will be bundled by esbuild)
+import "pkg";
+import("pkg");
+require("pkg");
+
+// Dynamic imports (will not be bundled by esbuild)
+import(`pkg/${foo}`);
+require(`pkg/${foo}`);
+["pkg"].map(require);
+```
+
+如果有多个入口文件，则会创建多个单独的文件，并合并依赖项。
 
 > service
 
