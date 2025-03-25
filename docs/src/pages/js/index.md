@@ -2,7 +2,7 @@
 
 [参考文档 1](https://juejin.cn/post/7295277070388035622?searchId=20240112113954A6ABB4537D430B150DC8)
 
-可以很方便的检测一个元素是否可见或者两个元素是否相交2
+可以很方便的检测一个元素是否可见或者两个元素是否相交 2
 
 <b>构造函数</b>
 
@@ -86,4 +86,3 @@ observer.disconnect()
 
 ==返回所有观察目标的 entry 对象数组==
 observer.takeRecords()
- 

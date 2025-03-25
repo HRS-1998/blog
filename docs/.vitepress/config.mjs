@@ -47,6 +47,8 @@ export default defineConfig({
           {
             text: "js", items: [
               { text: "基础", link: "pages/js/index.md" },
+              { text: "DOM事件流", link: "pages/js/DOM事件流.md" },
+              { text: "DOM文档流", link: "pages/js/文档流.md" },
               { text: "ao和vo", link: "pages/js/ao和vo.md" },
               { text: "函数重载", link: "pages/js/函数重载.md" },
               { text: "promise及其应用", link: "pages/js/promise.md" },
@@ -77,7 +79,8 @@ export default defineConfig({
       {
         text: "网络",
         items: [
-          { text: "page1", link: "pages/react/index.md" },
+          { text: "强缓存、协商缓存", link: "pages/http/cache.md" },
+          { text: "状态码", link: "pages/http/requestStatus.md" },
         ],
         collapsed: true,
       },
@@ -88,7 +91,10 @@ export default defineConfig({
           { text: "axios", link: "pages/minprogram/index.md" },
           { text: "vue", link: "pages/minprogram/index.md" },
           { text: "react", link: "pages/minprogram/index.md" },
+          { text: "vite", link: "pages/source/vite/index.md" },
           { text: "webpack", link: "pages/minprogram/index.md" },
+          { text: "rollup", link: "pages/minprogram/index.md" },
+          { text: "ant-design", link: "pages/minprogram/index.md" },
         ],
         collapsed: true,
       },
