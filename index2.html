@@ -31,9 +31,25 @@
         left: 50%;
         transform: translate(-50%, -50%); /* 居中 */
       }
+      input::selection {
+        color: white;
+        background-color: red;
+      }
+      textarea::selection {
+        color: white;
+        background-color: green;
+      }
     </style>
   </head>
   <body>
+    <input type="text" placeholder="1111" />
+    <textarea
+      name="aaa"
+      id=""
+      cols="30"
+      rows="10"
+      placeholder="sflaf"
+    ></textarea>
     <div class="container">
       <div class="box1">Box 1</div>
       <div class="box2">Box 2</div>
@@ -53,6 +69,12 @@
       //     0: Block
       //       localVar: Uint8Array(1000000000) [0, 0, …]
       //     1: Global {type: "global", name: "", object: Window}
+      window.onload = function () {
+        const el = document.getElementsByTagName("input");
+        el[0].oninput = function () {
+          console.log(this.value);
+        };
+      };
     </script>
   </body>
 </html>
