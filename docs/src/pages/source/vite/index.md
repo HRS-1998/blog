@@ -608,6 +608,27 @@ require("esbuild").build({
   打包完成后触发
 
 > service
+> esbuild 的 Service API 提供编程式调用打包能力的接口，适用于需要精细控制构建流程的场景。
+
+```ts
+const esbuild = require("esbuild");
+
+// 启动服务
+const service = await esbuild.startService();
+
+try {
+  // 执行构建
+  const result = await service.build({
+    entryPoints: ["src/index.js"],
+    bundle: true,
+    outfile: "dist/bundle.js",
+    minify: true,
+  });
+} finally {
+  // 关闭服务释放资源
+  service.stop();
+}
+```
 
 ## vite 源码调试
 
@@ -709,26 +730,7 @@ cli
       //关于enviroments ---client ---ssr
       resolveDevEnvironmentOptions() //解析环境变量
       debugger = createDebugger('vite:server')
-
 }
-
-/**
- * server/* 有关类
- *
- * - PluginContainer - 插件容器
- *   1.根据当前环境（client,ssr）选择对应的插件容器
- *   2.监听watchChange事件，监听模块的创建，更新和删除事件（仅支持客户端）
- *   3.加载指定模块，调用对应环境的load方法 load(id,options?)
- *   4.转换代码 transform(code ,id , options?)
- *
- *
- */
-/**
- * When the dev server is restarted, the methods are called in the following order:
- * - new instance `init`
- * - previous instance `close`
- * - new instance `listen`
-   */
 ```
 
 #### \_creatServer 方法详细解析
@@ -753,14 +755,38 @@ if (configFile !== false) {
    // 2.1 const isModuleSyncConditionEnabled = (await import('#module-sync-enabled')).default 值为false
    //  const dirnameVarName = '__vite_injected_original_dirname'
    //  const filenameVarName = '__vite_injected_original_filename'
-   //  const importMetaUrlVarName = '__vite_injected_original_import_meta_url'
+   //  const importMetaUrlVarName = '__vite_injected_original_import_meta_url'           ------这几个变量后面被esbuild的define关键词替换了
 
+   // 使用esbuild打包配置文件 ,用了两个插件
+   //  插件1： "externalizze-deps", --- 作用是处理外部依赖。在`onResolve`钩子中，检查模块ID是否为绝对路径或Node内置模块，如果是则跳过。如果是非Node内置模块，则尝试使用Vite的解析器来解析路径，如果解析失败，可能抛出错误。特别是处理ESM和CJS的情况，如果尝试用`require`加载ESM模块，会报错提示。
+
+   //插件2： "inject-file-scope-variables"  ---作用是 在加载文件时，注入了一些变量，如`__dirname`、`__filename`和`import.meta.url`的值，确保打包后的代码能正确引用原始文件路径。 最后，函数返回打包后的代码和依赖列表，依赖来自esbuild的metafile中的输入文件
   loadConfigFromFile(onfigEnv: ConfigEnv,configFile?: string,configRoot: string = process.cwd(),
   logLevel?: LogLevel,customLogger?: Logger,configLoader: 'bundle' | 'runner' | 'native' = 'bundle',);
 }
 ```
 
 2. server.ts
+
+```ts
+/**
+ * server/* 有关类
+ *
+ * - PluginContainer - 插件容器
+ *   1.根据当前环境（client,ssr）选择对应的插件容器
+ *   2.监听watchChange事件，监听模块的创建，更新和删除事件（仅支持客户端）
+ *   3.加载指定模块，调用对应环境的load方法 load(id,options?)
+ *   4.转换代码 transform(code ,id , options?)
+ *
+ *
+ */
+/**
+ * When the dev server is restarted, the methods are called in the following order:
+ * - new instance `init`
+ * - previous instance `close`
+ * - new instance `listen`
+ */
+```
 
 ## webpack 自定义插件
 

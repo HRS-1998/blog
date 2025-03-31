@@ -30,15 +30,24 @@
 //       localVar: 1
 //     1: Global {type: "global", name: "", object: Window}
 
+// -------------------
 
-const obj = {
-    //  a: 1,
-    b: 2,
-    c: 3
-}
+// const obj = {
+//     //  a: 1,
+//     b: 2,
+//     c: 3
+// }
 
-const { a = 4, b = 3 } = obj
-console.log(a)
+// const { a = 4, b = 3 } = obj
+// console.log(a)
+
+// -------------------
+
+// hash串生成
+// const hash = `timestamp-${Date.now()}-${Math.random().toString(16).slice(2)}`
+
+
+// console.log(Math.random(), Math.random().toString(16), Math.random().toString(16).slice(2));
 
 
 
