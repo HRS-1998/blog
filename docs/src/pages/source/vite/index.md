@@ -638,7 +638,46 @@ try {
 
 <!-- 命令行参数 -->
 
-process.argv
+process.argv [参考文档](https://vitejs.cn/vite5-cn/guide/cli.html)
+
+```ts
+//   这里解析了 --debug,--filter,--profile
+//   --profile	启动内置的 Node.js 调试器（查看 性能瓶颈）
+//   -d, --debug [feat]	显示调试日志 (string | boolean)
+//   -f, --filter <filter>	过滤调试日志 (string)
+//
+// check debug mode first before requiring the CLI.
+const debugIndex = process.argv.findIndex((arg) =>
+  /^(?:-d|--debug)$/.test(arg)
+);
+const filterIndex = process.argv.findIndex((arg) =>
+  /^(?:-f|--filter)$/.test(arg)
+);
+const profileIndex = process.argv.indexOf("--profile");
+
+if (debugIndex > 0) {
+  let value = process.argv[debugIndex + 1];
+  if (!value || value.startsWith("-")) {
+    value = "vite:*";
+  } else {
+    // support debugging multiple flags with comma-separated list
+    value = value
+      .split(",")
+      .map((v) => `vite:${v}`)
+      .join(",");
+  }
+  process.env.DEBUG = `${
+    process.env.DEBUG ? process.env.DEBUG + "," : ""
+  }${value}`;
+
+  if (filterIndex > 0) {
+    const filter = process.argv[filterIndex + 1];
+    if (filter && !filter.startsWith("-")) {
+      process.env.VITE_DEBUG_FILTER = filter;
+    }
+  }
+}
+```
 
 <!-- 判断是否是 vite 命令 -->
 
@@ -737,7 +776,7 @@ cli
 
 1. resolveConfig ------------ 解析配置
 
-```js
+````js
 // configLoader：'bundle' | 'runner' | 'native' = 'bundle'，控制vite如何加载配置文件
 // bundle（默认值）,使用esbuild 打包配置文件
 // runner 通过vite运行时模块加载器（runner) 导入，不需要打包配置文件，需要配置文件时ESM格式
@@ -763,8 +802,103 @@ if (configFile !== false) {
    //插件2： "inject-file-scope-variables"  ---作用是 在加载文件时，注入了一些变量，如`__dirname`、`__filename`和`import.meta.url`的值，确保打包后的代码能正确引用原始文件路径。 最后，函数返回打包后的代码和依赖列表，依赖来自esbuild的metafile中的输入文件
   loadConfigFromFile(onfigEnv: ConfigEnv,configFile?: string,configRoot: string = process.cwd(),
   logLevel?: LogLevel,customLogger?: Logger,configLoader: 'bundle' | 'runner' | 'native' = 'bundle',);
+  // 执行完loadConfigFromFile方法后，会返回一个对象，包含三个属性：{path:normalizePath(resolvedPath),config,dependencies}
 }
-```
+
+ //  接下来是对插件plugins的处理
+ // 这段代码的作用
+ // 1.对用户提供的插件进行过滤，其中p.apply配置执行的环境如development,build,当为falsy值时在所有环境下执行，当为函数时，执行函数并传入当前环境（development,build）和配置环境（configEnv）作为参数，由插件开发者自行判断如果返回值为true，则表示该插件应该被应用，否则应该被忽略。
+ //  2. asyncFlatten  拍平plugin,由于支持以下写法
+ //  plugins: [
+ //    plugin1,
+ //    [plugin2, plugin3],
+ //    { plugins: [plugin4] }
+ //  ]
+
+ // 3. sortUserPlugins  对插件进行分类，p.enforce:'pre'|'post' 将插件分为三个部分：prePlugins, normalPlugins, postPlugins
+
+
+export interface Plugin {
+  name: string;
+  apply?: 'build' | 'serve' | ((config: UserConfig, env: ConfigEnv) => boolean);
+  // ...其他钩子
+}
+ export async function asyncFlatten<T extends unknown[]>(
+  arr: T,
+): Promise<AsyncFlatten<T>> {
+  do {
+    arr = (await Promise.all(arr)).flat(Infinity) as any
+  } while (arr.some((v: any) => v?.then))
+  return arr as unknown[] as AsyncFlatten<T>
+}
+   const filterPlugin = (p: Plugin | FalsyPlugin): p is Plugin => {
+    if (!p) {
+      return false
+    } else if (!p.apply) {
+      return true
+    } else if (typeof p.apply === 'function') {
+      return p.apply({ ...config, mode }, configEnv)
+    } else {
+      return p.apply === command
+    }
+  }
+
+  // resolve plugins
+  const rawPlugins = (await asyncFlatten(config.plugins || [])).filter(
+    filterPlugin,
+  )
+
+  const [prePlugins, normalPlugins, postPlugins] = sortUserPlugins(rawPlugins)
+
+// 拿到处理后的plugins，执行runConfigHook方法
+// getSortedPluginsByHook 将plugins按照pre,normal,post分别分类，然后根据插件的enforce属性进行排序
+// runConfigHook 执行插件的config钩子，并返回处理后的配置,将vite.config.ts文件中的配置与插件中的config进行合并,返回合并后的config
+async function runConfigHook(
+  config: InlineConfig,
+  plugins: Plugin[],
+  configEnv: ConfigEnv,
+): Promise<InlineConfig> {
+  let conf = config
+
+  for (const p of getSortedPluginsByHook('config', plugins)) {
+    const hook = p.config
+    const handler = getHookHandler(hook)
+    const res = await handler(conf, configEnv)
+    if (res && res !== conf) {
+      conf = mergeConfig(conf, res)
+    }
+  }
+
+  return conf
+}
+
+// 接下来定义一个logger日志对象
+  const logger = createLogger(config.logLevel, {
+      allowClearScreen: config.clearScreen,
+      customLogger: config.customLogger,
+    })
+
+//接下来 对环境变量的一些处理，以及ssr环境下变量的处理
+// 示例工作流程：
+// Vite 解析出基础环境配置
+// 遍历所有插件的 configEnvironment 钩子
+// 对每个环境(client/ssr)依次调用插件钩子
+// 插件可以返回该环境的增量配置
+// 最终合并所有插件的修改，形成最终环境配
+
+
+// load .env files 获取.env配置文件
+// /** default file */ `.env`,
+//  /** local file */ `.env.local`,
+//  /** mode file */ `.env.${mode}`,
+//  /** mode local file */ `.env.${mode}.local`,
+ const envDir = config.envDir
+    ? normalizePath(path.resolve(resolvedRoot, config.envDir))
+    : resolvedRoot
+  const userEnv =
+    inlineConfig.envFile !== false &&
+    loadEnv(mode, envDir, resolveEnvPrefix(config))
+
 
 2. server.ts
 
@@ -786,7 +920,7 @@ if (configFile !== false) {
  * - previous instance `close`
  * - new instance `listen`
  */
-```
+````
 
 ## webpack 自定义插件
 

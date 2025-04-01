@@ -50,4 +50,11 @@
 // console.log(Math.random(), Math.random().toString(16), Math.random().toString(16).slice(2));
 
 
+// const a = {};
+// a.name ??= {}
+// console.log(a.name)
+
+
+
+
 
