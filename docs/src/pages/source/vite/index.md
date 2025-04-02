@@ -776,7 +776,7 @@ cli
 
 1. resolveConfig ------------ 解析配置
 
-````js
+```js
 // configLoader：'bundle' | 'runner' | 'native' = 'bundle'，控制vite如何加载配置文件
 // bundle（默认值）,使用esbuild 打包配置文件
 // runner 通过vite运行时模块加载器（runner) 导入，不需要打包配置文件，需要配置文件时ESM格式
@@ -801,6 +801,7 @@ if (configFile !== false) {
 
    //插件2： "inject-file-scope-variables"  ---作用是 在加载文件时，注入了一些变量，如`__dirname`、`__filename`和`import.meta.url`的值，确保打包后的代码能正确引用原始文件路径。 最后，函数返回打包后的代码和依赖列表，依赖来自esbuild的metafile中的输入文件
   loadConfigFromFile(onfigEnv: ConfigEnv,configFile?: string,configRoot: string = process.cwd(),
+  // 日志
   logLevel?: LogLevel,customLogger?: Logger,configLoader: 'bundle' | 'runner' | 'native' = 'bundle',);
   // 执行完loadConfigFromFile方法后，会返回一个对象，包含三个属性：{path:normalizePath(resolvedPath),config,dependencies}
 }
@@ -884,11 +885,11 @@ async function runConfigHook(
 // 遍历所有插件的 configEnvironment 钩子
 // 对每个环境(client/ssr)依次调用插件钩子
 // 插件可以返回该环境的增量配置
-// 最终合并所有插件的修改，形成最终环境配
+// 最终合并所有插件的修改，形成不同环境下的配置config
 
 
 // load .env files 获取.env配置文件
-// /** default file */ `.env`,
+//  /** default file */ `.env`,
 //  /** local file */ `.env.local`,
 //  /** mode file */ `.env.${mode}`,
 //  /** mode local file */ `.env.${mode}.local`,
@@ -899,27 +900,892 @@ async function runConfigHook(
     inlineConfig.envFile !== false &&
     loadEnv(mode, envDir, resolveEnvPrefix(config))
 
+// 对base路径进行处理
+ // During dev, we ignore relative base and fallback to '/'
+  // For the SSR build, relative base isn't possible by means
+  // of import.meta.url.
+  const resolvedBase = relativeBaseShortcut
+    ? !isBuild || config.build?.ssr
+      ? '/'
+      : './'
+    : resolveBaseUrl(config.base, isBuild, logger)
 
-2. server.ts
+
+  // resolve cache directory  .vite 缓存目录
+  const pkgDir = findNearestPackageData(resolvedRoot, packageCache)?.dir
+  const cacheDir = normalizePath(
+    config.cacheDir
+      ? path.resolve(resolvedRoot, config.cacheDir)
+      : pkgDir
+        ? path.join(pkgDir, `node_modules/.vite`)
+        : path.join(resolvedRoot, `.vite`),
+  )
+
+// 对config.assetsInclude字段进行处理，使用createFilter
+// 是否视为静态资源，vite中对 KNOWN_ASSET_TYPES 类型的文件视为静态资源
+//使用示例
+// vite.config.js
+{
+  // 匹配 .glsl 文件和 /custom-assets/ 目录
+  assetsInclude: ['**/*.glsl', /\/custom-assets\//]
+}
+
+/**
+ * Constructs a filter function which can be used to determine whether or not
+ * certain modules should be operated upon.
+ * @param include If `include` is omitted or has zero length, filter will return `true` by default.
+ * @param exclude ID must not match any of the `exclude` patterns.
+ * @param options Optionally resolves the patterns against a directory other than `process.cwd()`.
+ * If a `string` is specified, then the value will be used as the base directory.
+ * Relative paths will be resolved against `process.cwd()` first.
+ * If `false`, then the patterns will not be resolved against any directory.
+ * This can be useful if you want to create a filter for virtual module names.
+ */
+export function createFilter(
+  include?: FilterPattern,
+  exclude?: FilterPattern,
+  options?: { resolve?: string | false | null }
+): (id: string | unknown) => boolean;
+
+    const assetsFilter =
+    config.assetsInclude &&
+    (!Array.isArray(config.assetsInclude) || config.assetsInclude.length)
+      ? createFilter(config.assetsInclude)
+      : () => false
+
+
+
+// 创建publicDir 公共目录
+  const { publicDir } = config
+  const resolvedPublicDir =
+    publicDir !== false && publicDir !== ''
+      ? normalizePath(
+          path.resolve(
+            resolvedRoot,
+            typeof publicDir === 'string'
+              ? publicDir
+              : configDefaults.publicDir,
+          ),
+        )
+      : ''
+
+
+// resolveServerOptions是vite中解析服务器配置的方法，将用户配置config.server与默认配置进行合并，并进行路径解析和安全处理
+// resolveBuilderOptions合并配置
+
+  const server = resolveServerOptions(resolvedRoot, config.server, logger)
+
+  const builder = resolveBuilderOptions(config.builder)
+
+// createUserWorkerPlugins ,创建一个工作区域worker的插件环境，
+//一些不打算在工作者捆绑中工作的插件（例如在构建时进行后处理）。
+//而且插件也可能有缓存，这些缓存可能因用于这些额外的汇总调用而被损坏。
+//所以我们需要将worker插件与vite需要运行的插件分开。
+
+const createWorkerPlugins = async function (bundleChain: string[]) {
+    // Some plugins that aren't intended to work in the bundling of workers (doing post-processing at build time for example).
+    // And Plugins may also have cached that could be corrupted by being used in these extra rollup calls.
+    // So we need to separate the worker plugin from the plugin that vite needs to run.
+    const rawWorkerUserPlugins = (
+      await asyncFlatten(createUserWorkerPlugins?.() || [])
+    ).filter(filterPlugin)
+
+    // resolve worker
+    let workerConfig = mergeConfig({}, config)
+    const [workerPrePlugins, workerNormalPlugins, workerPostPlugins] =
+      sortUserPlugins(rawWorkerUserPlugins)
+
+    // run config hooks
+    const workerUserPlugins = [
+      ...workerPrePlugins,
+      ...workerNormalPlugins,
+      ...workerPostPlugins,
+    ]
+    workerConfig = await runConfigHook(
+      workerConfig,
+      workerUserPlugins,
+      configEnv,
+    )
+
+    const workerResolved: ResolvedConfig = {
+      ...workerConfig,
+      ...resolved,
+      isWorker: true,
+      mainConfig: resolved,
+      bundleChain,
+    }
+    const resolvedWorkerPlugins = (await resolvePlugins(
+      workerResolved,
+      workerPrePlugins,
+      workerNormalPlugins,
+      workerPostPlugins,
+    )) as Plugin[]
+
+    // run configResolved hooks
+    await Promise.all(
+      createPluginHookUtils(resolvedWorkerPlugins)
+        .getSortedPluginHooks('configResolved')
+        .map((hook) => hook(workerResolved)),
+    )
+
+    return {
+      ...workerResolved,
+      plugins: resolvedWorkerPlugins,
+    }
+  }
+
+
+//结合上述所有解析，定义一个resolved
+
+ resolved = {
+    configFile: configFile ? normalizePath(configFile) : undefined,
+    configFileDependencies: configFileDependencies.map((name) =>
+      normalizePath(path.resolve(name)),
+    ),
+    inlineConfig,
+    root: resolvedRoot,
+    base,
+    decodedBase: decodeURI(base),
+    rawBase: resolvedBase,
+    publicDir: resolvedPublicDir,
+    cacheDir,
+    command,
+    mode,
+    isWorker: false,
+    mainConfig: null,
+    bundleChain: [],
+    isProduction,
+    plugins: userPlugins, // placeholder to be replaced
+    css: resolveCSSOptions(config.css),
+    json: mergeWithDefaults(configDefaults.json, config.json ?? {}),
+    esbuild:
+      config.esbuild === false
+        ? false
+        : {
+            jsxDev: !isProduction,
+            ...config.esbuild,
+          },
+    server,
+    builder,
+    preview,
+    envDir,
+    env: {
+      ...userEnv,
+      BASE_URL,
+      MODE: mode,
+      DEV: !isProduction,
+      PROD: isProduction,
+    },
+    assetsInclude(file: string) {
+      return DEFAULT_ASSETS_RE.test(file) || assetsFilter(file)
+    },
+    logger,
+    packageCache,
+    worker: resolvedWorkerOptions,
+    appType: config.appType ?? 'spa',
+    experimental: {
+      importGlobRestoreExtension: false,
+      hmrPartialAccept: false,
+      ...config.experimental,
+    },
+    future: config.future,
+
+    ssr,
+
+    optimizeDeps: backwardCompatibleOptimizeDeps,
+    resolve: resolvedDefaultResolve,
+    dev: resolvedDevEnvironmentOptions,
+    build: resolvedBuildOptions,
+
+    environments: resolvedEnvironments,
+
+    // random 72 bits (12 base64 chars)
+    // at least 64bits is recommended
+    // https://owasp.org/www-community/vulnerabilities/Insufficient_Session-ID_Length
+    webSocketToken: Buffer.from(
+      crypto.getRandomValues(new Uint8Array(9)),
+    ).toString('base64url'),
+
+    getSortedPlugins: undefined!,
+    getSortedPluginHooks: undefined!,
+
+    /**
+     * createResolver is deprecated. It only works for the client and ssr
+     * environments. The `aliasOnly` option is also not being used any more
+     * Plugins should move to createIdResolver(environment) instead.
+     * create an internal resolver to be used in special scenarios, e.g.
+     * optimizer & handling css @imports
+     */
+    createResolver(options) {
+      const resolve = createIdResolver(this, options)
+      const clientEnvironment = new PartialEnvironment('client', this)
+      let ssrEnvironment: PartialEnvironment | undefined
+      return async (id, importer, aliasOnly, ssr) => {
+        if (ssr) {
+          ssrEnvironment ??= new PartialEnvironment('ssr', this)
+        }
+        return await resolve(
+          ssr ? ssrEnvironment! : clientEnvironment,
+          id,
+          importer,
+          aliasOnly,
+        )
+      }
+    },
+    // picomatch一个一个高速，精确的路径匹配工具，这里用于检测禁止访问路径
+    // 示例： fsDenyGlob('.env.local') ---> 拒绝
+    fsDenyGlob: picomatch(
+      // matchBase: true does not work as it's documented
+      // https://github.com/micromatch/picomatch/issues/89
+      // convert patterns without `/` on our side for now
+      server.fs.deny.map((pattern) =>
+        pattern.includes('/') ? pattern : `**/${pattern}`,
+      ),
+      {
+        matchBase: false,
+        nocase: true,
+        dot: true,
+      },
+    ),
+    safeModulePaths: new Set<string>(),
+    additionalAllowedHosts: getAdditionalAllowedHosts(server, preview),
+  }
+  resolved = {
+    ...config,
+    ...resolved,
+  }
+
+
+// 接下来解析plugins   :|  这里后续仔细看一下，先全局走通流程
+//resolvePlugins函数  该函数是Vite插件系统的核心调度器，负责根据当前配置(config)、构建阶段(isBuild)和环境类型(isWorker)动态聚合所有Vite内置插件，并整合用户自定义插件，确保在开发或构建时正确的插件被加载，并且顺序正确，以处理不同的资源和功能。
+ const resolvedPlugins = await resolvePlugins(
+    resolved,
+    prePlugins,
+    normalPlugins,
+    postPlugins,
+  )
+
+// 处理output和outDir   outputOption  resolvedBuildOutDir
+
+
+
+```
+
+|          配置          | 开发模式  | 生产构建  | SSR 构建  |
+| :--------------------: | :-------: | :-------: | :-------: |
+|        base: ''        | / (强制)  |    ./     |     /     |
+|     base: 'assets'     | /assets/  | ./assets/ | /assets/  |
+|   base: '/project/'    | /project/ | /project/ | /project/ |
+| base: 'http://cdn.com' | 原样保留  | 原样保留  | 原样保留  |
+
+2. initPublicFiles ------ 初始化公共文件 public
+
+根据 config.publicDir 深度递归读取公共目录下的文件
+去除公共前缀，使用 map 存储公共文件
+
+```ts
+const publicFiles = await initPublicFilesPromise;
+
+export async function initPublicFiles(
+  config: ResolvedConfig
+): Promise<Set<string> | undefined> {
+  let fileNames: string[];
+  try {
+    fileNames = await recursiveReaddir(config.publicDir);
+  } catch (e) {
+    if (e.code === ERR_SYMLINK_IN_RECURSIVE_READDIR) {
+      return;
+    }
+    throw e;
+  }
+  const publicFiles = new Set(
+    fileNames.map((fileName) => fileName.slice(config.publicDir.length))
+  );
+  publicFilesMap.set(config, publicFiles);
+  return publicFiles;
+}
+```
+
+3. resolveHttpsConfig 解析 httpsOptions
+
+   ```ts
+   const httpsOptions = await resolveHttpsConfig(config.server.https);
+
+   export async function resolveHttpsConfig(
+     https: HttpsServerOptions | undefined
+   ): Promise<HttpsServerOptions | undefined> {
+     if (!https) return undefined;
+     const [ca, cert, key, pfx] = await Promise.all([
+       readFileIfExists(https.ca),
+       readFileIfExists(https.cert),
+       readFileIfExists(https.key),
+       readFileIfExists(https.pfx),
+     ]);
+     return { ...https, ca, cert, key, pfx };
+   }
+   ```
+
+4. getResolveOutDirs resolveEmptyOutDir
+
+// getResolveOutDirs 返回一个 Set,存储 config.build.rollupOptions.output 的值
+// resolveEmptyOutDir 返回一个布尔值，表示是否需要创建空目录
+
+```ts
+const resolvedOutDirs = getResolvedOutDirs(
+  config.root,
+  config.build.outDir,
+  config.build.rollupOptions.output
+);
+const emptyOutDir = resolveEmptyOutDir(
+  config.build.emptyOutDir,
+  config.root,
+  resolvedOutDirs
+);
+
+export function getResolvedOutDirs(
+  root: string,
+  outDir: string,
+  outputOptions: OutputOptions[] | OutputOptions | undefined
+): Set<string> {
+  const resolvedOutDir = path.resolve(root, outDir);
+  if (!outputOptions) return new Set([resolvedOutDir]);
+
+  return new Set(
+    arraify(outputOptions).map(({ dir }) =>
+      dir ? path.resolve(root, dir) : resolvedOutDir
+    )
+  );
+}
+export function resolveEmptyOutDir(
+  emptyOutDir: boolean | null,
+  root: string,
+  outDirs: Set<string>,
+  logger?: Logger
+): boolean {
+  if (emptyOutDir != null) return emptyOutDir;
+
+  for (const outDir of outDirs) {
+    if (!normalizePath(outDir).startsWith(withTrailingSlash(root))) {
+      // warn if outDir is outside of root
+      logger?.warn(
+        colors.yellow(
+          `\n${colors.bold(`(!)`)} outDir ${colors.white(
+            colors.dim(outDir)
+          )} is not inside project root and will not be emptied.\n` +
+            `Use --emptyOutDir to override.\n`
+        )
+      );
+      return false;
+    }
+  }
+  return true;
+}
+```
+
+5. resolveChokidarOptions 监听文件 options
 
 ```ts
 /**
- * server/* 有关类
- *
- * - PluginContainer - 插件容器
- *   1.根据当前环境（client,ssr）选择对应的插件容器
- *   2.监听watchChange事件，监听模块的创建，更新和删除事件（仅支持客户端）
- *   3.加载指定模块，调用对应环境的load方法 load(id,options?)
- *   4.转换代码 transform(code ,id , options?)
- *
- *
- */
+ * 返回 resolvedWatchOptions包含需要监听和忽略的文件路径
+ resolvedWatchOptions: WatchOptions = {
+    ignored,
+    ignoreInitial: true,
+    ignorePermissionErrors: true,
+    ...otherOptions,
+  }
+*/
+const resolvedWatchOptions = resolveChokidarOptions(
+  {
+    disableGlobbing: true,
+    ...serverConfig.watch,
+  },
+  resolvedOutDirs,
+  emptyOutDir,
+  config.cacheDir
+);
+
+//
+export function resolveChokidarOptions(
+  options: WatchOptions | undefined,
+  resolvedOutDirs: Set<string>,
+  emptyOutDir: boolean,
+  cacheDir: string
+): WatchOptions {
+  const { ignored: ignoredList, ...otherOptions } = options ?? {};
+  const ignored: WatchOptions["ignored"] = [
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/test-results/**", // Playwright
+    escapePath(cacheDir) + "/**",
+    ...arraify(ignoredList || []),
+  ];
+  if (emptyOutDir) {
+    ignored.push(
+      ...[...resolvedOutDirs].map((outDir) => escapePath(outDir) + "/**")
+    );
+  }
+
+  const resolvedWatchOptions: WatchOptions = {
+    ignored,
+    ignoreInitial: true,
+    ignorePermissionErrors: true,
+    ...otherOptions,
+  };
+
+  return resolvedWatchOptions;
+}
+```
+
+6. resolveHttpServer
+
+```ts
+// createServer 返回一个 http 的实例 server
+// createSecureServer  Create a secure HTTP/2 server
+resolveHttpServer(serverConfig, middlewares, httpsOptions);
+
+export async function resolveHttpServer(
+  { proxy }: CommonServerOptions,
+  app: Connect.Server,
+  httpsOptions?: HttpsServerOptions
+): Promise<HttpServer> {
+  if (!httpsOptions) {
+    const { createServer } = await import("node:http");
+    return createServer(app);
+  }
+
+  // #484 fallback to http1 when proxy is needed.
+  if (proxy) {
+    const { createServer } = await import("node:https");
+    return createServer(httpsOptions, app);
+  } else {
+    const { createSecureServer } = await import("node:http2");
+    return createSecureServer(
+      {
+        // Manually increase the session memory to prevent 502 ENHANCE_YOUR_CALM
+        // errors on large numbers of requests
+        maxSessionMemory: 1000,
+        ...httpsOptions,
+        allowHTTP1: true,
+      },
+      // @ts-expect-error TODO: is this correct?
+      app
+    );
+  }
+}
+```
+
+7. createWebSocketServer
+   源码 path: packages\vite\src\node\server\ws.ts
+
+- 服务器初始化路径
+  if (wsServer 存在) {
+  复用现有 HTTP 服务器
+  注册 upgrade 监听器
+  } else {
+  创建新 HTTP 服务器
+  配置 426 状态响应
+  处理端口冲突错误
+  }
+- 消息处理流程
+  wss.on('connection', socket => {
+  socket.on('message', raw => {
+  解析 JSON → 分发自定义事件 → 触发监听器
+  })
+  })
+- 关闭清理逻辑
+  close() {
+  移除升级监听器
+  终止所有客户端连接
+  关闭 WebSocket 服务器
+  关闭 HTTP 服务器(如果独立创建)
+  }
+
+架构设计亮点
+双协议支持
+
+vite-hmr: 正式 HMR 通信
+vite-ping: 轻量级连接检查协议
+混合部署能力
+
+支持与主 HTTP 服务器共存
+支持独立端口部署
+安全纵深防御
+
+基于时间的令牌验证
+Host 白名单过滤
+浏览器请求强制校验
+资源管理优化
+
+WeakMap 缓存客户端对象
+按需创建 HTTP 服务器
+自动清理无效引用
+错误恢复机制
+
+缓冲未送达的错误
+智能端口冲突处理
+连接状态预检查
+该实现完整展现了 Vite 在 WebSocket 通信层的设计哲学：在保证开发体验流畅性的同时，严格把控安全边界，通过分层架构实现功能扩展性与运行稳定性的平衡。
+
+```ts
+// 1. 判断config.server.ws.server是否为false，如果为false，则创建一个空的配置和空的方法，代表用户可以禁用webScoketServer
+
+// 2. 从config.server.hmr中获取HMR的服务器、端口等信息。判断端口是否兼容，如果HMR服务器存在或端口兼容，则使用现有的HTTP服务器，否则创建新的HTTP/HTTPS服务器。
+
+const ws = createWebSocketServer(httpServer, config, httpsOptions);
+
+export function createWebSocketServer(
+  server: HttpServer | null,
+  config: ResolvedConfig,
+  httpsOptions?: HttpsServerOptions
+): WebSocketServer {
+  if (config.server.ws === false) {
+    return {
+      [isWebSocketServer]: true,
+      get clients() {
+        return new Set<WebSocketClient>();
+      },
+      async close() {
+        // noop
+      },
+      on: noop as any as WebSocketServer["on"],
+      off: noop as any as WebSocketServer["off"],
+      setInvokeHandler: noop,
+      handleInvoke: async () => ({
+        error: {
+          name: "TransportError",
+          message: "handleInvoke not implemented",
+          stack: new Error().stack,
+        },
+      }),
+      listen: noop,
+      send: noop,
+    };
+  }
+
+  let wsHttpServer: Server | undefined = undefined;
+
+  const hmr = isObject(config.server.hmr) && config.server.hmr;
+  const hmrServer = hmr && hmr.server;
+  const hmrPort = hmr && hmr.port;
+  // TODO: the main server port may not have been chosen yet as it may use the next available
+  const portsAreCompatible = !hmrPort || hmrPort === config.server.port;
+  const wsServer = hmrServer || (portsAreCompatible && server);
+  let hmrServerWsListener: (
+    req: InstanceType<typeof IncomingMessage>,
+    socket: Duplex,
+    head: Buffer
+  ) => void;
+  const customListeners = new Map<string, Set<WebSocketCustomListener<any>>>();
+  const clientsMap = new WeakMap<WebSocketRaw, WebSocketClient>();
+  const port = hmrPort || 24678;
+  const host = (hmr && hmr.host) || undefined;
+
+  //   安全控制体系
+  const shouldHandle = (req: IncomingMessage) => {
+    const protocol = req.headers["sec-websocket-protocol"]!;
+    // vite-ping is allowed to connect from anywhere
+    // because it needs to be connected before the client fetches the new `/@vite/client`
+    // this is fine because vite-ping does not receive / send any meaningful data
+    if (protocol === "vite-ping") return true;
+
+    const hostHeader = req.headers.host;
+    if (!hostHeader || !isHostAllowed(config, false, hostHeader)) {
+      return false;
+    }
+
+    if (config.legacy?.skipWebSocketTokenCheck) {
+      return true;
+    }
+
+    // If the Origin header is set, this request might be coming from a browser.
+    // Browsers always sets the Origin header for WebSocket connections.
+    if (req.headers.origin) {
+      const parsedUrl = new URL(`http://example.com${req.url!}`);
+      return hasValidToken(config, parsedUrl);
+    }
+
+    // We allow non-browser requests to connect without a token
+    // for backward compat and convenience
+    // This is fine because if you can sent a request without the SOP limitation,
+    // you can also send a normal HTTP request to the server.
+    return true; // 非浏览器请求
+  };
+
+  //   协议处理流程
+  const handleUpgrade = (
+    req: IncomingMessage,
+    socket: Duplex,
+    head: Buffer,
+    isPing: boolean
+  ) => {
+    wss.handleUpgrade(req, socket as Socket, head, (ws) => {
+      // vite-ping is allowed to connect from anywhere
+      // we close the connection immediately without connection event
+      // so that the client does not get included in `wss.clients`
+      if (isPing) {
+        ws.close(/* Normal Closure */ 1000);
+        return;
+      }
+      wss.emit("connection", ws, req);
+    });
+  };
+  const wss: WebSocketServerRaw_ = new WebSocketServerRaw({ noServer: true });
+  wss.shouldHandle = shouldHandle;
+
+  if (wsServer) {
+    let hmrBase = config.base;
+    const hmrPath = hmr ? hmr.path : undefined;
+    if (hmrPath) {
+      hmrBase = path.posix.join(hmrBase, hmrPath);
+    }
+    hmrServerWsListener = (req, socket, head) => {
+      const protocol = req.headers["sec-websocket-protocol"]!;
+      const parsedUrl = new URL(`http://example.com${req.url!}`);
+      if (
+        [HMR_HEADER, "vite-ping"].includes(protocol) &&
+        parsedUrl.pathname === hmrBase
+      ) {
+        handleUpgrade(req, socket as Socket, head, protocol === "vite-ping");
+      }
+    };
+    wsServer.on("upgrade", hmrServerWsListener);
+  } else {
+    // http server request handler keeps the same with
+    // https://github.com/websockets/ws/blob/45e17acea791d865df6b255a55182e9c42e5877a/lib/websocket-server.js#L88-L96
+    const route = ((_, res) => {
+      const statusCode = 426;
+      const body = STATUS_CODES[statusCode];
+      if (!body)
+        throw new Error(`No body text found for the ${statusCode} status code`);
+
+      res.writeHead(statusCode, {
+        "Content-Length": body.length,
+        "Content-Type": "text/plain",
+      });
+      res.end(body);
+    }) as Parameters<typeof createHttpServer>[1];
+    // vite dev server in middleware mode
+    // need to call ws listen manually
+    if (httpsOptions) {
+      wsHttpServer = createHttpsServer(httpsOptions, route);
+    } else {
+      wsHttpServer = createHttpServer(route);
+    }
+    wsHttpServer.on("upgrade", (req, socket, head) => {
+      const protocol = req.headers["sec-websocket-protocol"]!;
+      if (protocol === "vite-ping" && server && !server.listening) {
+        // reject connection to tell the vite/client that the server is not ready
+        // if the http server is not listening
+        // because the ws server listens before the http server listens
+        req.destroy();
+        return;
+      }
+      handleUpgrade(req, socket as Socket, head, protocol === "vite-ping");
+    });
+    wsHttpServer.on("error", (e: Error & { code: string; port: number }) => {
+      if (e.code === "EADDRINUSE") {
+        config.logger.error(
+          colors.red(
+            `WebSocket server error: Port ${e.port} is already in use`
+          ),
+          { error: e }
+        );
+      } else {
+        config.logger.error(
+          colors.red(`WebSocket server error:\n${e.stack || e.message}`),
+          { error: e }
+        );
+      }
+    });
+  }
+
+  wss.on("connection", (socket) => {
+    socket.on("message", (raw) => {
+      if (!customListeners.size) return;
+      let parsed: any;
+      try {
+        parsed = JSON.parse(String(raw));
+      } catch {}
+      if (!parsed || parsed.type !== "custom" || !parsed.event) return;
+      const listeners = customListeners.get(parsed.event);
+      if (!listeners?.size) return;
+      const client = getSocketClient(socket);
+      listeners.forEach((listener) =>
+        listener(parsed.data, client, parsed.invoke)
+      );
+    });
+    socket.on("error", (err) => {
+      config.logger.error(`${colors.red(`ws error:`)}\n${err.stack}`, {
+        timestamp: true,
+        error: err,
+      });
+    });
+    socket.send(JSON.stringify({ type: "connected" }));
+    if (bufferedError) {
+      socket.send(JSON.stringify(bufferedError));
+      bufferedError = null;
+    }
+  });
+
+  wss.on("error", (e: Error & { code: string; port: number }) => {
+    if (e.code === "EADDRINUSE") {
+      config.logger.error(
+        colors.red(`WebSocket server error: Port ${e.port} is already in use`),
+        { error: e }
+      );
+    } else {
+      config.logger.error(
+        colors.red(`WebSocket server error:\n${e.stack || e.message}`),
+        { error: e }
+      );
+    }
+  });
+
+  // Provide a wrapper to the ws client so we can send messages in JSON format
+  // To be consistent with server.ws.send
+
+  //  客户端管理
+  function getSocketClient(socket: WebSocketRaw) {
+    if (!clientsMap.has(socket)) {
+      clientsMap.set(socket, {
+        send: (...args: any[]) => {
+          let payload: HotPayload;
+          if (typeof args[0] === "string") {
+            payload = {
+              type: "custom",
+              event: args[0],
+              data: args[1],
+            };
+          } else {
+            payload = args[0];
+          }
+          socket.send(JSON.stringify(payload));
+        },
+        socket,
+      });
+    }
+    return clientsMap.get(socket)!;
+  }
+
+  // On page reloads, if a file fails to compile and returns 500, the server
+  // sends the error payload before the client connection is established.
+  // If we have no open clients, buffer the error and send it to the next
+  // connected client.
+  let bufferedError: ErrorPayload | null = null;
+
+  const normalizedHotChannel = normalizeHotChannel(
+    {
+      send(payload) {
+        if (payload.type === "error" && !wss.clients.size) {
+          bufferedError = payload;
+          return;
+        }
+
+        const stringified = JSON.stringify(payload);
+        wss.clients.forEach((client) => {
+          // readyState 1 means the connection is open
+          if (client.readyState === 1) {
+            client.send(stringified);
+          }
+        });
+      },
+      on(event: string, fn: any) {
+        if (!customListeners.has(event)) {
+          customListeners.set(event, new Set());
+        }
+        customListeners.get(event)!.add(fn);
+      },
+      off(event: string, fn: any) {
+        customListeners.get(event)?.delete(fn);
+      },
+      listen() {
+        wsHttpServer?.listen(port, host);
+      },
+      close() {
+        // should remove listener if hmr.server is set
+        // otherwise the old listener swallows all WebSocket connections
+        if (hmrServerWsListener && wsServer) {
+          wsServer.off("upgrade", hmrServerWsListener);
+        }
+        return new Promise<void>((resolve, reject) => {
+          wss.clients.forEach((client) => {
+            client.terminate();
+          });
+          wss.close((err) => {
+            if (err) {
+              reject(err);
+            } else {
+              if (wsHttpServer) {
+                wsHttpServer.close((err) => {
+                  if (err) {
+                    reject(err);
+                  } else {
+                    resolve();
+                  }
+                });
+              } else {
+                resolve();
+              }
+            }
+          });
+        });
+      },
+    },
+    config.server.hmr !== false,
+    // Don't normalize client as we already handles the send, and to keep `.socket`
+    false
+  );
+  return {
+    ...normalizedHotChannel,
+
+    on: ((event: string, fn: any) => {
+      if (wsServerEvents.includes(event)) {
+        wss.on(event, fn);
+        return;
+      }
+      normalizedHotChannel.on(event, fn);
+    }) as WebSocketServer["on"],
+    off: ((event: string, fn: any) => {
+      if (wsServerEvents.includes(event)) {
+        wss.off(event, fn);
+        return;
+      }
+      normalizedHotChannel.off(event, fn);
+    }) as WebSocketServer["off"],
+    async close() {
+      await normalizedHotChannel.close();
+    },
+
+    [isWebSocketServer]: true,
+    get clients() {
+      return new Set(Array.from(wss.clients).map(getSocketClient));
+    },
+  };
+}
+```
+
+````
+
+1. server.ts
+
+```ts
 /**
- * When the dev server is restarted, the methods are called in the following order:
- * - new instance `init`
- * - previous instance `close`
- * - new instance `listen`
- */
+* server/* 有关类
+*
+* - PluginContainer - 插件容器
+*   1.根据当前环境（client,ssr）选择对应的插件容器
+*   2.监听watchChange事件，监听模块的创建，更新和删除事件（仅支持客户端）
+*   3.加载指定模块，调用对应环境的load方法 load(id,options?)
+*   4.转换代码 transform(code ,id , options?)
+*
+*
+*/
+/**
+* When the dev server is restarted, the methods are called in the following order:
+* - new instance `init`
+* - previous instance `close`
+* - new instance `listen`
+*/
 ````
 
 ## webpack 自定义插件
