@@ -56,5 +56,23 @@
 
 
 
+class DemoForProxy {
+    constructor(name) {
+        this._name = name
+    }
+    getName() {
+        return new Proxy({ add: 1 }, {
+            get: (_, key) => {
+                if (key) return Object.assign({ age: 12 }, { name: this._name })
+                return 1
+            }
+        })
+    }
+}
+
+const A = new DemoForProxy('A')
+console.log(A.getName())
+
+
 
 

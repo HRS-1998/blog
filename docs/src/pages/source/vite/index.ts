@@ -149,3 +149,34 @@ console.log(process.cwd(),'11')
 // // -------------------------------------------------------------------
 
 // picomatch 一个高速，精确的路径匹配工具
+
+// // -------------------------------------------------------------------
+// 基于class PluginContainer的一个写法实践  packages\vite\src\node\server\pluginContainer.ts
+
+interface User{
+  id:string;
+  name:string;
+  age:number;
+}
+class UserDemo{
+    usersInfo={};
+    constructor(user){
+      this.usersInfo[user.id] = user;
+    }
+    getUser(id){
+        return new Proxy(this.usersInfo[id],{
+            get(_,key){
+                if(_.hasOwnProperty(key)) return Reflect.get(_,key);
+            }
+        })
+        
+    }
+}
+
+const userDemo = new UserDemo({
+  id:'1',
+  name:'zhangsan',
+  age:18
+})
+
+console.log(userDemo.getUser('1'),userDemo.getUser('1').name)

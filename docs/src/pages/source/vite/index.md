@@ -1764,6 +1764,1070 @@ export function createWebSocketServer(
 }
 ```
 
+8. 创建文件监听 chokidar.watch，结合 5 中的 resolveChokidarOptions
+
+```ts
+// 文件监听
+const watcher = watchEnabled
+  ? (chokidar.watch(
+      // config file dependencies and env file might be outside of root
+      [
+        root,
+        ...config.configFileDependencies,
+        ...getEnvFilesForMode(config.mode, config.envDir),
+        // Watch the public directory explicitly because it might be outside
+        // of the root directory.
+        ...(publicDir && publicFiles ? [publicDir] : []),
+      ],
+
+      resolvedWatchOptions
+    ) as FSWatcher)
+  : createNoopWatcher(resolvedWatchOptions); // 空函数
+```
+
+9. 创建双环境下的模块图 moduleGraph
+
+```ts
+//   urlToModuleMap: Map<string, ModuleNode>;
+//   idToModuleMap: Map<string, ModuleNode>;
+//   etagToModuleMap: Map<string, ModuleNode>;
+//   fileToModulesMap: Map<string, Set<ModuleNode>>;
+
+let moduleGraph = new ModuleGraph({
+  client: () => environments.client.moduleGraph,
+  ssr: () => environments.ssr.moduleGraph,
+});
+
+export class ModuleGraph {
+  /** @internal */
+  _moduleGraphs: {
+    client: () => EnvironmentModuleGraph;
+    ssr: () => EnvironmentModuleGraph;
+  };
+
+  /** @internal */
+  get _client(): EnvironmentModuleGraph {
+    return this._moduleGraphs.client();
+  }
+
+  /** @internal */
+  get _ssr(): EnvironmentModuleGraph {
+    return this._moduleGraphs.ssr();
+  }
+
+  urlToModuleMap: Map<string, ModuleNode>;
+  idToModuleMap: Map<string, ModuleNode>;
+  etagToModuleMap: Map<string, ModuleNode>;
+
+  fileToModulesMap: Map<string, Set<ModuleNode>>;
+
+  private moduleNodeCache = new DualWeakMap<
+    EnvironmentModuleNode,
+    EnvironmentModuleNode,
+    ModuleNode
+  >();
+
+  constructor(moduleGraphs: {
+    client: () => EnvironmentModuleGraph;
+    ssr: () => EnvironmentModuleGraph;
+  }) {
+    this._moduleGraphs = moduleGraphs;
+
+    const getModuleMapUnion =
+      (prop: "urlToModuleMap" | "idToModuleMap") => () => {
+        // A good approximation to the previous logic that returned the union of
+        // the importedModules and importers from both the browser and server
+        if (this._ssr[prop].size === 0) {
+          return this._client[prop];
+        }
+        const map = new Map(this._client[prop]);
+        for (const [key, module] of this._ssr[prop]) {
+          if (!map.has(key)) {
+            map.set(key, module);
+          }
+        }
+        return map;
+      };
+
+    this.urlToModuleMap = createBackwardCompatibleModuleMap(
+      this,
+      "urlToModuleMap",
+      getModuleMapUnion("urlToModuleMap")
+    );
+    this.idToModuleMap = createBackwardCompatibleModuleMap(
+      this,
+      "idToModuleMap",
+      getModuleMapUnion("idToModuleMap")
+    );
+    this.etagToModuleMap = createBackwardCompatibleModuleMap(
+      this,
+      "etagToModuleMap",
+      () => this._client.etagToModuleMap
+    );
+    this.fileToModulesMap = createBackwardCompatibleFileToModulesMap(this);
+  }
+
+  getModuleById(id: string): ModuleNode | undefined {
+    const clientModule = this._client.getModuleById(id);
+    const ssrModule = this._ssr.getModuleById(id);
+    if (!clientModule && !ssrModule) {
+      return;
+    }
+    return this.getBackwardCompatibleModuleNodeDual(clientModule, ssrModule);
+  }
+
+  async getModuleByUrl(
+    url: string,
+    _ssr?: boolean
+  ): Promise<ModuleNode | undefined> {
+    // In the mixed graph, the ssr flag was used to resolve the id.
+    const [clientModule, ssrModule] = await Promise.all([
+      this._client.getModuleByUrl(url),
+      this._ssr.getModuleByUrl(url),
+    ]);
+    if (!clientModule && !ssrModule) {
+      return;
+    }
+    return this.getBackwardCompatibleModuleNodeDual(clientModule, ssrModule);
+  }
+
+  getModulesByFile(file: string): Set<ModuleNode> | undefined {
+    // Until Vite 5.1.x, the moduleGraph contained modules from both the browser and server
+    // We maintain backwards compatibility by returning a Set of module proxies assuming
+    // that the modules for a certain file are the same in both the browser and server
+    const clientModules = this._client.getModulesByFile(file);
+    const ssrModules = this._ssr.getModulesByFile(file);
+    if (!clientModules && !ssrModules) {
+      return undefined;
+    }
+    const result = new Set<ModuleNode>();
+    if (clientModules) {
+      for (const mod of clientModules) {
+        result.add(this.getBackwardCompatibleBrowserModuleNode(mod)!);
+      }
+    }
+    if (ssrModules) {
+      for (const mod of ssrModules) {
+        if (mod.id == null || !this._client.getModuleById(mod.id)) {
+          result.add(this.getBackwardCompatibleServerModuleNode(mod)!);
+        }
+      }
+    }
+    return result;
+  }
+
+  onFileChange(file: string): void {
+    this._client.onFileChange(file);
+    this._ssr.onFileChange(file);
+  }
+
+  onFileDelete(file: string): void {
+    this._client.onFileDelete(file);
+    this._ssr.onFileDelete(file);
+  }
+
+  /** @internal */
+  _getModuleGraph(environment: string): EnvironmentModuleGraph {
+    switch (environment) {
+      case "client":
+        return this._client;
+      case "ssr":
+        return this._ssr;
+      default:
+        throw new Error(`Invalid module node environment ${environment}`);
+    }
+  }
+
+  invalidateModule(
+    mod: ModuleNode,
+    seen = new Set<ModuleNode>(),
+    timestamp: number = Date.now(),
+    isHmr: boolean = false,
+    /** @internal */
+    softInvalidate = false
+  ): void {
+    if (mod._clientModule) {
+      this._client.invalidateModule(
+        mod._clientModule,
+        new Set(
+          [...seen].map((mod) => mod._clientModule).filter(Boolean)
+        ) as Set<EnvironmentModuleNode>,
+        timestamp,
+        isHmr,
+        softInvalidate
+      );
+    }
+    if (mod._ssrModule) {
+      // TODO: Maybe this isn't needed?
+      this._ssr.invalidateModule(
+        mod._ssrModule,
+        new Set(
+          [...seen].map((mod) => mod._ssrModule).filter(Boolean)
+        ) as Set<EnvironmentModuleNode>,
+        timestamp,
+        isHmr,
+        softInvalidate
+      );
+    }
+  }
+
+  invalidateAll(): void {
+    this._client.invalidateAll();
+    this._ssr.invalidateAll();
+  }
+
+  /* TODO: It seems there isn't usage of this method in the ecosystem
+     Waiting to check if we really need this for backwards compatibility
+  async updateModuleInfo(
+    module: ModuleNode,
+    importedModules: Set<string | ModuleNode>,
+    importedBindings: Map<string, Set<string>> | null,
+    acceptedModules: Set<string | ModuleNode>,
+    acceptedExports: Set<string> | null,
+    isSelfAccepting: boolean,
+    ssr?: boolean,
+    staticImportedUrls?: Set<string>, // internal
+  ): Promise<Set<ModuleNode> | undefined> {
+    // Not implemented
+  }
+  */
+
+  async ensureEntryFromUrl(
+    rawUrl: string,
+    ssr?: boolean,
+    setIsSelfAccepting = true
+  ): Promise<ModuleNode> {
+    const module = await (ssr ? this._ssr : this._client).ensureEntryFromUrl(
+      rawUrl,
+      setIsSelfAccepting
+    );
+    return this.getBackwardCompatibleModuleNode(module)!;
+  }
+
+  createFileOnlyEntry(file: string): ModuleNode {
+    const clientModule = this._client.createFileOnlyEntry(file);
+    const ssrModule = this._ssr.createFileOnlyEntry(file);
+    return this.getBackwardCompatibleModuleNodeDual(clientModule, ssrModule)!;
+  }
+
+  async resolveUrl(url: string, ssr?: boolean): Promise<ResolvedUrl> {
+    return ssr ? this._ssr.resolveUrl(url) : this._client.resolveUrl(url);
+  }
+
+  updateModuleTransformResult(
+    mod: ModuleNode,
+    result: TransformResult | null,
+    ssr?: boolean
+  ): void {
+    const environment = ssr ? "ssr" : "client";
+    this._getModuleGraph(environment).updateModuleTransformResult(
+      (environment === "client" ? mod._clientModule : mod._ssrModule)!,
+      result
+    );
+  }
+
+  getModuleByEtag(etag: string): ModuleNode | undefined {
+    const mod = this._client.etagToModuleMap.get(etag);
+    return mod && this.getBackwardCompatibleBrowserModuleNode(mod);
+  }
+
+  getBackwardCompatibleBrowserModuleNode(
+    clientModule: EnvironmentModuleNode
+  ): ModuleNode {
+    return this.getBackwardCompatibleModuleNodeDual(
+      clientModule,
+      clientModule.id ? this._ssr.getModuleById(clientModule.id) : undefined
+    );
+  }
+
+  getBackwardCompatibleServerModuleNode(
+    ssrModule: EnvironmentModuleNode
+  ): ModuleNode {
+    return this.getBackwardCompatibleModuleNodeDual(
+      ssrModule.id ? this._client.getModuleById(ssrModule.id) : undefined,
+      ssrModule
+    );
+  }
+
+  getBackwardCompatibleModuleNode(mod: EnvironmentModuleNode): ModuleNode {
+    return mod.environment === "client"
+      ? this.getBackwardCompatibleBrowserModuleNode(mod)
+      : this.getBackwardCompatibleServerModuleNode(mod);
+  }
+
+  getBackwardCompatibleModuleNodeDual(
+    clientModule?: EnvironmentModuleNode,
+    ssrModule?: EnvironmentModuleNode
+  ): ModuleNode {
+    const cached = this.moduleNodeCache.get(clientModule, ssrModule);
+    if (cached) {
+      return cached;
+    }
+
+    const moduleNode = new ModuleNode(this, clientModule, ssrModule);
+    this.moduleNodeCache.set(clientModule, ssrModule, moduleNode);
+    return moduleNode;
+  }
+}
+```
+
+10. 创建一个插件容器 createPluginContainer
+
+```ts
+class PluginContainer {
+  constructor(private environments: Record<string, Environment>) {}
+
+  // Backward compatibility
+  // Users should call pluginContainer.resolveId (and load/transform) passing the environment they want to work with
+  // But there is code that is going to call it without passing an environment, or with the ssr flag to get the ssr environment
+  private _getEnvironment(options?: {
+    ssr?: boolean;
+    environment?: Environment;
+  }) {
+    return options?.environment
+      ? options.environment
+      : this.environments[options?.ssr ? "ssr" : "client"];
+  }
+
+  private _getPluginContainer(options?: {
+    ssr?: boolean;
+    environment?: Environment;
+  }) {
+    return (this._getEnvironment(options) as DevEnvironment).pluginContainer;
+  }
+
+  getModuleInfo(id: string): ModuleInfo | null {
+    const clientModuleInfo = (
+      this.environments.client as DevEnvironment
+    ).pluginContainer.getModuleInfo(id);
+    const ssrModuleInfo = (
+      this.environments.ssr as DevEnvironment
+    ).pluginContainer.getModuleInfo(id);
+
+    if (clientModuleInfo == null && ssrModuleInfo == null) return null;
+
+    return new Proxy({} as any, {
+      get: (_, key: string) => {
+        // `meta` refers to `ModuleInfo.meta` of both environments, so we also
+        // need to merge it here
+        if (key === "meta") {
+          const meta: Record<string, any> = {};
+          if (ssrModuleInfo) {
+            Object.assign(meta, ssrModuleInfo.meta);
+          }
+          if (clientModuleInfo) {
+            Object.assign(meta, clientModuleInfo.meta);
+          }
+          return meta;
+        }
+        if (clientModuleInfo) {
+          if (key in clientModuleInfo) {
+            return clientModuleInfo[key as keyof ModuleInfo];
+          }
+        }
+        if (ssrModuleInfo) {
+          if (key in ssrModuleInfo) {
+            return ssrModuleInfo[key as keyof ModuleInfo];
+          }
+        }
+      },
+    });
+  }
+
+  get options(): InputOptions {
+    return (this.environments.client as DevEnvironment).pluginContainer.options;
+  }
+
+  // For backward compatibility, buildStart and watchChange are called only for the client environment
+  // buildStart is called per environment for a plugin with the perEnvironmentStartEndDuring dev flag
+
+  async buildStart(_options?: InputOptions): Promise<void> {
+    (this.environments.client as DevEnvironment).pluginContainer.buildStart(
+      _options
+    );
+  }
+
+  async watchChange(
+    id: string,
+    change: { event: "create" | "update" | "delete" }
+  ): Promise<void> {
+    (this.environments.client as DevEnvironment).pluginContainer.watchChange(
+      id,
+      change
+    );
+  }
+
+  async resolveId(
+    rawId: string,
+    importer?: string,
+    options?: {
+      attributes?: Record<string, string>;
+      custom?: CustomPluginOptions;
+      /** @deprecated use `skipCalls` instead */
+      skip?: Set<Plugin>;
+      skipCalls?: readonly SkipInformation[];
+      ssr?: boolean;
+      /**
+       * @internal
+       */
+      scan?: boolean;
+      isEntry?: boolean;
+    }
+  ): Promise<PartialResolvedId | null> {
+    return this._getPluginContainer(options).resolveId(
+      rawId,
+      importer,
+      options
+    );
+  }
+
+  async load(
+    id: string,
+    options?: {
+      ssr?: boolean;
+    }
+  ): Promise<LoadResult | null> {
+    return this._getPluginContainer(options).load(id);
+  }
+
+  async transform(
+    code: string,
+    id: string,
+    options?: {
+      ssr?: boolean;
+      environment?: Environment;
+      inMap?: SourceDescription["map"];
+    }
+  ): Promise<{ code: string; map: SourceMap | { mappings: "" } | null }> {
+    return this._getPluginContainer(options).transform(code, id, options);
+  }
+
+  async close(): Promise<void> {
+    // noop, close will be called for each environment
+  }
+}
+```
+
+11. createDevHtmlTransformFn
+
+```ts
+const devHtmlTransformFn = createDevHtmlTransformFn(config);
+
+export function createDevHtmlTransformFn(
+  config: ResolvedConfig
+): (
+  server: ViteDevServer,
+  url: string,
+  html: string,
+  originalUrl?: string
+) => Promise<string> {
+  const [preHooks, normalHooks, postHooks] = resolveHtmlTransforms(
+    config.plugins,
+    config.logger
+  );
+  const transformHooks = [
+    preImportMapHook(config),
+    injectCspNonceMetaTagHook(config),
+    ...preHooks,
+    htmlEnvHook(config),
+    devHtmlHook,
+    ...normalHooks,
+    ...postHooks,
+    injectNonceAttributeTagHook(config),
+    postImportMapHook(),
+  ];
+  return (
+    server: ViteDevServer,
+    url: string,
+    html: string,
+    originalUrl?: string
+  ): Promise<string> => {
+    return applyHtmlTransforms(html, transformHooks, {
+      path: url,
+      filename: getHtmlFilename(url, server),
+      server,
+      originalUrl,
+    });
+  };
+}
+
+export async function applyHtmlTransforms(
+  html: string,
+  hooks: IndexHtmlTransformHook[],
+  ctx: IndexHtmlTransformContext
+): Promise<string> {
+  for (const hook of hooks) {
+    const res = await hook(html, ctx);
+    if (!res) {
+      continue;
+    }
+    if (typeof res === "string") {
+      html = res;
+    } else {
+      let tags: HtmlTagDescriptor[];
+      if (Array.isArray(res)) {
+        tags = res;
+      } else {
+        html = res.html || html;
+        tags = res.tags;
+      }
+
+      let headTags: HtmlTagDescriptor[] | undefined;
+      let headPrependTags: HtmlTagDescriptor[] | undefined;
+      let bodyTags: HtmlTagDescriptor[] | undefined;
+      let bodyPrependTags: HtmlTagDescriptor[] | undefined;
+
+      for (const tag of tags) {
+        switch (tag.injectTo) {
+          case "body":
+            (bodyTags ??= []).push(tag);
+            break;
+          case "body-prepend":
+            (bodyPrependTags ??= []).push(tag);
+            break;
+          case "head":
+            (headTags ??= []).push(tag);
+            break;
+          default:
+            (headPrependTags ??= []).push(tag);
+        }
+      }
+      headTagInsertCheck(
+        [...(headTags || []), ...(headPrependTags || [])],
+        ctx
+      );
+      if (headPrependTags) html = injectToHead(html, headPrependTags, true);
+      if (headTags) html = injectToHead(html, headTags);
+      if (bodyPrependTags) html = injectToBody(html, bodyPrependTags, true);
+      if (bodyTags) html = injectToBody(html, bodyTags);
+    }
+  }
+
+  return html;
+}
+```
+
+12. closeServer 关闭服务器
+
+```ts
+const closeServer = async () => {
+  if (!middlewareMode) {
+    teardownSIGTERMListener(closeServerAndExit);
+  }
+
+  await Promise.allSettled([
+    watcher.close(),
+    ws.close(),
+    Promise.allSettled(
+      Object.values(server.environments).map((environment) =>
+        environment.close()
+      )
+    ),
+    closeHttpServer(),
+    server._ssrCompatModuleRunner?.close(),
+  ]);
+  server.resolvedUrls = null;
+  server._ssrCompatModuleRunner = undefined;
+};
+```
+
+13. 定义 server: ViteDevServer
+
+```ts
+let server: ViteDevServer = {
+  config,
+  middlewares,
+  httpServer,
+  watcher,
+  ws,
+  hot: createDeprecatedHotBroadcaster(ws),
+
+  environments,
+  pluginContainer,
+  get moduleGraph() {
+    warnFutureDeprecation(config, "removeServerModuleGraph");
+    return moduleGraph;
+  },
+  set moduleGraph(graph) {
+    moduleGraph = graph;
+  },
+
+  resolvedUrls: null, // will be set on listen
+  ssrTransform(
+    code: string,
+    inMap: SourceMap | { mappings: "" } | null,
+    url: string,
+    originalCode = code
+  ) {
+    return ssrTransform(code, inMap, url, originalCode, {
+      json: {
+        stringify:
+          config.json.stringify === true && config.json.namedExports !== true,
+      },
+    });
+  },
+  // environment.transformRequest and .warmupRequest don't take an options param for now,
+  // so the logic and error handling needs to be duplicated here.
+  // The only param in options that could be important is `html`, but we may remove it as
+  // that is part of the internal control flow for the vite dev server to be able to bail
+  // out and do the html fallback
+  transformRequest(url, options) {
+    warnFutureDeprecation(
+      config,
+      "removeServerTransformRequest",
+      "server.transformRequest() is deprecated. Use environment.transformRequest() instead."
+    );
+    const environment = server.environments[options?.ssr ? "ssr" : "client"];
+    return transformRequest(environment, url, options);
+  },
+  async warmupRequest(url, options) {
+    try {
+      const environment = server.environments[options?.ssr ? "ssr" : "client"];
+      await transformRequest(environment, url, options);
+    } catch (e) {
+      if (
+        e?.code === ERR_OUTDATED_OPTIMIZED_DEP ||
+        e?.code === ERR_CLOSED_SERVER
+      ) {
+        // these are expected errors
+        return;
+      }
+      // Unexpected error, log the issue but avoid an unhandled exception
+      server.config.logger.error(
+        buildErrorMessage(e, [`Pre-transform error: ${e.message}`], false),
+        {
+          error: e,
+          timestamp: true,
+        }
+      );
+    }
+  },
+  transformIndexHtml(url, html, originalUrl) {
+    return devHtmlTransformFn(server, url, html, originalUrl);
+  },
+  async ssrLoadModule(url, opts?: { fixStacktrace?: boolean }) {
+    warnFutureDeprecation(config, "removeSsrLoadModule");
+    return ssrLoadModule(url, server, opts?.fixStacktrace);
+  },
+  ssrFixStacktrace(e) {
+    ssrFixStacktrace(e, server.environments.ssr.moduleGraph);
+  },
+  ssrRewriteStacktrace(stack: string) {
+    return ssrRewriteStacktrace(stack, server.environments.ssr.moduleGraph);
+  },
+  async reloadModule(module) {
+    if (serverConfig.hmr !== false && module.file) {
+      // TODO: Should we also update the node moduleGraph for backward compatibility?
+      const environmentModule = (module._clientModule ?? module._ssrModule)!;
+      updateModules(
+        environments[environmentModule.environment]!,
+        module.file,
+        [environmentModule],
+        Date.now()
+      );
+    }
+  },
+  async listen(port?: number, isRestart?: boolean) {
+    await startServer(server, port);
+    if (httpServer) {
+      server.resolvedUrls = await resolveServerUrls(
+        httpServer,
+        config.server,
+        httpsOptions,
+        config
+      );
+      if (!isRestart && config.server.open) server.openBrowser();
+    }
+    return server;
+  },
+  openBrowser() {
+    const options = server.config.server;
+    const url =
+      server.resolvedUrls?.local[0] ?? server.resolvedUrls?.network[0];
+    if (url) {
+      const path =
+        typeof options.open === "string"
+          ? new URL(options.open, url).href
+          : url;
+
+      // We know the url that the browser would be opened to, so we can
+      // start the request while we are awaiting the browser. This will
+      // start the crawling of static imports ~500ms before.
+      // preTransformRequests needs to be enabled for this optimization.
+      if (server.config.server.preTransformRequests) {
+        setTimeout(() => {
+          const getMethod = path.startsWith("https:") ? httpsGet : httpGet;
+
+          getMethod(
+            path,
+            {
+              headers: {
+                // Allow the history middleware to redirect to /index.html
+                Accept: "text/html",
+              },
+            },
+            (res) => {
+              res.on("end", () => {
+                // Ignore response, scripts discovered while processing the entry
+                // will be preprocessed (server.config.server.preTransformRequests)
+              });
+            }
+          )
+            .on("error", () => {
+              // Ignore errors
+            })
+            .end();
+        }, 0);
+      }
+
+      _openBrowser(path, true, server.config.logger);
+    } else {
+      server.config.logger.warn("No URL available to open in browser");
+    }
+  },
+  async close() {
+    if (!closeServerPromise) {
+      closeServerPromise = closeServer();
+    }
+    return closeServerPromise;
+  },
+  printUrls() {
+    if (server.resolvedUrls) {
+      printServerUrls(
+        server.resolvedUrls,
+        serverConfig.host,
+        config.logger.info
+      );
+    } else if (middlewareMode) {
+      throw new Error("cannot print server URLs in middleware mode.");
+    } else {
+      throw new Error(
+        "cannot print server URLs before server.listen is called."
+      );
+    }
+  },
+  bindCLIShortcuts(options) {
+    bindCLIShortcuts(server, options);
+  },
+  async restart(forceOptimize?: boolean) {
+    if (!server._restartPromise) {
+      server._forceOptimizeOnRestart = !!forceOptimize;
+      server._restartPromise = restartServer(server).finally(() => {
+        server._restartPromise = null;
+        server._forceOptimizeOnRestart = false;
+      });
+    }
+    return server._restartPromise;
+  },
+
+  waitForRequestsIdle(ignoredId?: string): Promise<void> {
+    return environments.client.waitForRequestsIdle(ignoredId);
+  },
+
+  _setInternalServer(_server: ViteDevServer) {
+    // Rebind internal the server variable so functions reference the user
+    // server instance after a restart
+    server = _server;
+  },
+  _importGlobMap: new Map(),
+  _restartPromise: null,
+  _forceOptimizeOnRestart: false,
+  _shortcutsOptions: undefined,
+};
+```
+
+这里看 server 对象中的几个方法
+
+##### openBrowser
+
+```ts
+export function openBrowser(
+  url: string,
+  opt: string | true,
+  logger: Logger
+): void {
+  // The browser executable to open.
+  // See https://github.com/sindresorhus/open#app for documentation.
+  const browser = typeof opt === "string" ? opt : process.env.BROWSER || "";
+  if (browser.toLowerCase().endsWith(".js")) {
+    executeNodeScript(browser, url, logger);
+  } else if (browser.toLowerCase() !== "none") {
+    const browserArgs = process.env.BROWSER_ARGS
+      ? process.env.BROWSER_ARGS.split(" ")
+      : [];
+    startBrowserProcess(browser, browserArgs, url, logger);
+  }
+}
+```
+
+13. onHMRUpdate
+
+```ts
+const onHMRUpdate = async (
+  type: "create" | "delete" | "update",
+  file: string
+) => {
+  if (serverConfig.hmr !== false) {
+    await handleHMRUpdate(type, file, server);
+  }
+};
+
+export async function handleHMRUpdate(
+  type: "create" | "delete" | "update",
+  file: string,
+  server: ViteDevServer
+): Promise<void> {
+  const { config } = server;
+  const mixedModuleGraph = ignoreDeprecationWarnings(() => server.moduleGraph);
+
+  const environments = Object.values(server.environments);
+  const shortFile = getShortName(file, config.root);
+
+  const isConfig = file === config.configFile;
+  const isConfigDependency = config.configFileDependencies.some(
+    (name) => file === name
+  );
+
+  const isEnv =
+    config.inlineConfig.envFile !== false &&
+    getEnvFilesForMode(config.mode, config.envDir).includes(file);
+  if (isConfig || isConfigDependency || isEnv) {
+    // auto restart server
+    debugHmr?.(`[config change] ${colors.dim(shortFile)}`);
+    config.logger.info(
+      colors.green(
+        `${normalizePath(
+          path.relative(process.cwd(), file)
+        )} changed, restarting server...`
+      ),
+      { clear: true, timestamp: true }
+    );
+    try {
+      await restartServerWithUrls(server);
+    } catch (e) {
+      config.logger.error(colors.red(e));
+    }
+    return;
+  }
+
+  debugHmr?.(`[file change] ${colors.dim(shortFile)}`);
+
+  // (dev only) the client itself cannot be hot updated.
+  if (file.startsWith(withTrailingSlash(normalizedClientDir))) {
+    environments.forEach(({ hot }) =>
+      hot.send({
+        type: "full-reload",
+        path: "*",
+        triggeredBy: path.resolve(config.root, file),
+      })
+    );
+    return;
+  }
+
+  const timestamp = Date.now();
+  const contextMeta = {
+    type,
+    file,
+    timestamp,
+    read: () => readModifiedFile(file),
+    server,
+  };
+  const hotMap = new Map<
+    Environment,
+    { options: HotUpdateOptions; error?: Error }
+  >();
+
+  for (const environment of Object.values(server.environments)) {
+    const mods = new Set(environment.moduleGraph.getModulesByFile(file));
+    if (type === "create") {
+      for (const mod of environment.moduleGraph._hasResolveFailedErrorModules) {
+        mods.add(mod);
+      }
+    }
+    const options = {
+      ...contextMeta,
+      modules: [...mods],
+      // later on hotUpdate will be called for each runtime with a new HotUpdateOptions
+      environment,
+    };
+    hotMap.set(environment, { options });
+  }
+
+  const mixedMods = new Set(mixedModuleGraph.getModulesByFile(file));
+
+  const mixedHmrContext: HmrContext = {
+    ...contextMeta,
+    modules: [...mixedMods],
+  };
+
+  const clientEnvironment = server.environments.client;
+  const ssrEnvironment = server.environments.ssr;
+  const clientContext = { environment: clientEnvironment };
+  const clientHotUpdateOptions = hotMap.get(clientEnvironment)!.options;
+  const ssrHotUpdateOptions = hotMap.get(ssrEnvironment)?.options;
+  try {
+    for (const plugin of getSortedHotUpdatePlugins(
+      server.environments.client
+    )) {
+      if (plugin.hotUpdate) {
+        const filteredModules = await getHookHandler(plugin.hotUpdate).call(
+          clientContext,
+          clientHotUpdateOptions
+        );
+        if (filteredModules) {
+          clientHotUpdateOptions.modules = filteredModules;
+          // Invalidate the hmrContext to force compat modules to be updated
+          mixedHmrContext.modules = mixedHmrContext.modules.filter(
+            (mixedMod) =>
+              filteredModules.some((mod) => mixedMod.id === mod.id) ||
+              ssrHotUpdateOptions?.modules.some(
+                (ssrMod) => ssrMod.id === mixedMod.id
+              )
+          );
+          mixedHmrContext.modules.push(
+            ...filteredModules
+              .filter(
+                (mod) =>
+                  !mixedHmrContext.modules.some(
+                    (mixedMod) => mixedMod.id === mod.id
+                  )
+              )
+              .map((mod) =>
+                mixedModuleGraph.getBackwardCompatibleModuleNode(mod)
+              )
+          );
+        }
+      } else if (type === "update") {
+        warnFutureDeprecation(
+          config,
+          "removePluginHookHandleHotUpdate",
+          `Used in plugin "${plugin.name}".`,
+          false
+        );
+        // later on, we'll need: if (runtime === 'client')
+        // Backward compatibility with mixed client and ssr moduleGraph
+        const filteredModules = await getHookHandler(plugin.handleHotUpdate!)(
+          mixedHmrContext
+        );
+        if (filteredModules) {
+          mixedHmrContext.modules = filteredModules;
+          clientHotUpdateOptions.modules =
+            clientHotUpdateOptions.modules.filter((mod) =>
+              filteredModules.some((mixedMod) => mod.id === mixedMod.id)
+            );
+          clientHotUpdateOptions.modules.push(
+            ...(filteredModules
+              .filter(
+                (mixedMod) =>
+                  !clientHotUpdateOptions.modules.some(
+                    (mod) => mod.id === mixedMod.id
+                  )
+              )
+              .map((mixedMod) => mixedMod._clientModule)
+              .filter(Boolean) as EnvironmentModuleNode[])
+          );
+          if (ssrHotUpdateOptions) {
+            ssrHotUpdateOptions.modules = ssrHotUpdateOptions.modules.filter(
+              (mod) =>
+                filteredModules.some((mixedMod) => mod.id === mixedMod.id)
+            );
+            ssrHotUpdateOptions.modules.push(
+              ...(filteredModules
+                .filter(
+                  (mixedMod) =>
+                    !ssrHotUpdateOptions.modules.some(
+                      (mod) => mod.id === mixedMod.id
+                    )
+                )
+                .map((mixedMod) => mixedMod._ssrModule)
+                .filter(Boolean) as EnvironmentModuleNode[])
+            );
+          }
+        }
+      }
+    }
+  } catch (error) {
+    hotMap.get(server.environments.client)!.error = error;
+  }
+
+  for (const environment of Object.values(server.environments)) {
+    if (environment.name === "client") continue;
+    const hot = hotMap.get(environment)!;
+    const environmentThis = { environment };
+    try {
+      for (const plugin of getSortedHotUpdatePlugins(environment)) {
+        if (plugin.hotUpdate) {
+          const filteredModules = await getHookHandler(plugin.hotUpdate).call(
+            environmentThis,
+            hot.options
+          );
+          if (filteredModules) {
+            hot.options.modules = filteredModules;
+          }
+        }
+      }
+    } catch (error) {
+      hot.error = error;
+    }
+  }
+
+  async function hmr(environment: DevEnvironment) {
+    try {
+      const { options, error } = hotMap.get(environment)!;
+      if (error) {
+        throw error;
+      }
+      if (!options.modules.length) {
+        // html file cannot be hot updated
+        if (file.endsWith(".html") && environment.name === "client") {
+          environment.logger.info(
+            colors.green(`page reload `) + colors.dim(shortFile),
+            {
+              clear: true,
+              timestamp: true,
+            }
+          );
+          environment.hot.send({
+            type: "full-reload",
+            path: config.server.middlewareMode
+              ? "*"
+              : "/" + normalizePath(path.relative(config.root, file)),
+          });
+        } else {
+          // loaded but not in the module graph, probably not js
+          debugHmr?.(
+            `(${environment.name}) [no modules matched] ${colors.dim(
+              shortFile
+            )}`
+          );
+        }
+        return;
+      }
+
+      updateModules(environment, shortFile, options.modules, timestamp);
+    } catch (err) {
+      environment.hot.send({
+        type: "error",
+        err: prepareError(err),
+      });
+    }
+  }
+
+  const hotUpdateEnvironments =
+    server.config.server.hotUpdateEnvironments ??
+    ((server, hmr) => {
+      // Run HMR in parallel for all environments by default
+      return Promise.all(
+        Object.values(server.environments).map((environment) =>
+          hmr(environment)
+        )
+      );
+    });
+
+  await hotUpdateEnvironments(server, hmr);
+}
+```
+
 ````
 
 1. server.ts
