@@ -16,3 +16,35 @@ https://blog.csdn.net/weixin_43654123/article/details/122142197
 
 四、nginx 命令
 [nginx 命令](https://www.cainiaojc.com/nginx/starting-and-restarting-nginx.html)
+
+# 记录 NUXT 实际开发中的问题
+
+## 使用 NuxtImg 和 img 的区别
+
+```vue
+
+```
+
+## i18n
+
+i18n 配置好后，vue 组件中可以直接在 template 中使用$t 无需引入 t
+
+```vue
+<template>
+  <div @click="closeMobileMenu">
+    {{ $t(item.label) }}
+  </div>
+</template>
+```
+
+## store 在组件中使用
+
+stores 文件夹下导出的 defineStore 中的属性和方法，在 vue 组件中使用时其中属性失去了响应式，可以使用 storeToRefs()方法恢复响应式。
+
+```vue
+<script setup lang="ts">
+const appStore = useAppStore();
+const { toggleMenu } = useAppStore();
+const { isMenuOpen } = storeToRefs(appStore);
+</script>
+```
