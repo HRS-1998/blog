@@ -72,6 +72,26 @@ class DemoForProxy {
 
 const A = new DemoForProxy('A')
 console.log(A.getName())
+console.log(A.getName().a)
+
+
+// let count = 0;
+// console.log(count++);
+// console.log(count);
+
+// function* gen() {
+//     yield 1;
+//     yield 2;
+//     yield 3;
+// }
+// const g = gen();
+// console.log(g.next());
+// console.log(g.next());
+// console.log(g.next());
+// console.log(g.next());
+// console.log(g.next());
+
+
 
 
 
