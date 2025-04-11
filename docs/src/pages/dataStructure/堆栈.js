@@ -1,0 +1,140 @@
+
+// 堆栈顺序存储实现
+class StackArray {
+    constructor() {
+        this.items = [];
+    }
+
+    // 入栈操作
+    push(element) {
+        this.items.push(element);
+    }
+
+    // 出栈操作
+    pop() {
+        if (this.isEmpty()) {
+            return "栈为空";
+        }
+        return this.items.pop();
+    }
+
+    // 查看栈顶元素
+    peek() {
+        if (this.isEmpty()) {
+            return "栈为空";
+        }
+        return this.items[this.items.length - 1];
+    }
+
+    // 判断栈是否为空
+    isEmpty() {
+        return this.items.length === 0;
+    }
+
+    // 获取栈的大小
+    size() {
+        return this.items.length;
+    }
+
+    // 清空栈
+    clear() {
+        this.items = [];
+    }
+
+    // 打印栈中的元素
+    printStack() {
+        console.log(this.items.toString());
+    }
+}
+
+// 示例用法
+const stack = new StackArray();
+stack.push(10);
+stack.push(20);
+stack.push(30);
+console.log(stack.peek()); // 输出: 30
+console.log(stack.pop()); // 输出: 30
+console.log(stack.size()); // 输出: 2
+stack.printStack(); // 输出: 10,20
+
+// 堆栈链式存储实现
+
+// 定义节点类
+class Node {
+    constructor(data) {
+        this.data = data;
+        this.next = null;
+    }
+}
+
+// 定义堆栈类
+class StackLinked {
+    constructor() {
+        this.top = null;
+        this.size = 0;
+    }
+
+    // 入栈操作
+    push(element) {
+        const newNode = new Node(element);
+        newNode.next = this.top;
+       = newNode;
+        this.size++;
+    }
+
+    // 出栈操作
+    pop() {
+        if (this.isEmpty()) {
+            return '栈为空';
+        }
+        const poppedNode = this.top;
+        this.top = this.top.next;
+        this.size--;
+        return poppedNode.data;
+    }
+
+    // 查看栈顶元素
+    peek() {
+        if (this.isEmpty()) {
+            return '栈为空';
+        }
+        return this.top.data;
+    }
+
+    // 判断栈是否为空
+    isEmpty() {
+        return this.size === 0;
+    }
+
+    // 获取栈的大小
+    size() {
+        return this.size;
+    }
+
+    // 清空栈
+    clear() {
+        this.top = null;
+        this.size = 0;
+    }
+
+    // 打印栈中的元素
+    printStack() {
+        let currentNode = this.top;
+        let stackElements = [];
+        while (currentNode) {
+            stackElements.push(currentNode.data);
+            currentNode = currentNode.next;
+        }
+        console.log(stackElements.join('->'));
+    }
+}
+
+// 示例用法
+const stack1 = new StackLinked();
+stack.push(10);
+stack.push(20);
+stack.push(30);
+console.log(stack.peek()); // 输出: 30
+console.log(stack.pop());  // 输出: 30
+console.log(stack.size()); // 输出: 2
+stack.printStack();        // 输出: 20->10
