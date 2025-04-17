@@ -236,8 +236,8 @@ void main() {
 
   ```dart
   List<int> numList = [1,9,9,4,3,2,8];
-  numList.add(10);
-  numList.insert(0,49);
+  numList.add(10);       // 在列表最后添加元素
+  numList.insert(0,49);   // 在列表指定位置添加元素
   print(numList);
 
   ---->[控制台输出]----
@@ -248,9 +248,9 @@ void main() {
 
   ```dart
   List<int> numList = [1,9,9,4,3,2,8];
-  numList.removeAt(2);
-  numList.remove(3);
-  numList.removeLast();
+  numList.removeAt(2);  /// 移除某个索引位置的元素
+  numList.remove(3);    // 移除去某个元素值
+  numList.removeLast();  // 移除最后一个元素
   print(numList);
 
   ---->[控制台输出]----
@@ -284,4 +284,307 @@ print(a.intersection(b)); // 交集
 {1, 9, 4, 3}
 {1, 9}
 
+```
+
+## 语言特性
+
+1. 空安全
+
+   ```dart
+   void main() {
+    int a = 1;
+    // 加? 表示可以为空
+    int? b = null;
+   }
+   ```
+
+2. 异步任务
+
+   ```dart
+   Future<void> main() async {
+     print("start");
+     String path=r'E:\vspo-feat-demo\flutterProject\demo01\pubspec.yaml';
+     File file=File(path);
+     _logger.info("开始读取文件");
+     // file.readAsString().then((value) {
+     //   _logger.info("读取文件成功：");
+     //  _logger.info(value)
+     // })
+     String value=await file.readAsString();
+     _logger.info("读取文件成功：");
+     _logger.info(value);
+   }
+   ```
+
+## Dart 关键字
+
+### 数据类型相关关键字
+
+- `int` - 整数类型
+- `double` - 浮点数类型
+- `num` - 数字类型
+- `String` - 字符串类型
+- `bool` - 布尔类型
+- `List` - 列表类型
+- `Map` - 映射类型
+- `Set` - 集合类型
+- `dynamic` - 动态类型
+- `Object` - 所有类的基类
+- `Never` - 永不返回的类型
+- `enum` - 枚举声明
+
+### 函数与方法相关关键字
+
+- `Function` - 函数类型
+- `async` - 异步函数声明
+- `await` - 等待异步操作完成
+- `return` - 函数返回值
+- `void` - 无返回值
+- `yield` - 生成器函数
+- `get` - getter 声明
+- `set` - setter 声明
+- `operator` - 运算符重载
+
+### 类与对象相关关键字
+
+- `class` - 类声明
+- `abstract` - 抽象类声明
+- `extends` - 继承
+- `implements` - 实现接口
+- `mixin` - 混入声明
+- `with` - 使用 mixin
+- `super` - 父类引用
+- `this` - 当前对象引用
+- `new` - 创建对象实例
+- `static` - 静态成员
+- `library` - 库声明
+- `import` - 导入库
+- `part` - 部分库声明
+- `typedef` - 类型别名
+
+### 控制流程相关关键字
+
+- `if` - 条件语句
+- `else` - if 语句的 else 分支
+- `switch` - 多分支选择
+- `case` - switch 语句分支
+- `default` - switch 语句默认分支
+- `for` - for 循环
+- `while` - while 循环
+- `do` - do-while 循环
+- `break` - 跳出循环
+- `continue` - 继续下一次循环
+- `in` - for-in 循环
+
+### 变量修饰符
+
+- `var` - 变量声明
+- `final` - 不可变变量
+- `const` - 编译时常量
+- `late` - 延迟初始化
+- `required` - 命名参数必填标记
+
+### 异常处理相关关键字
+
+- `try` - 异常处理
+- `catch` - 异常捕获
+- `finally` - try-catch-finally 语句
+- `throw` - 抛出异常
+- `rethrow` - 重新抛出异常
+- `on` - catch 语句中的异常类型
+
+### 其他关键字
+
+- `as` - 类型转换
+- `is` - 类型检查
+- `assert` - 断言
+- `null` - 空值
+- `true` - 布尔值真
+- `false` - 布尔值假
+- `Future` - 异步结果类型
+- `Stream` - 数据流类型
+- `Iterable` - 可迭代类型
+
+### 数据类型相关关键字
+
+```dart
+// 基本数据类型示例
+int age = 25;
+double height = 1.75;
+String name = "张三";
+bool isStudent = true;
+
+// 集合类型示例
+List<String> fruits = ['苹果', '香蕉', '橙子'];
+Map<String, int> scores = {'数学': 90, '语文': 85};
+Set<int> numbers = {1, 2, 3, 4, 5};
+
+// 枚举类型示例
+enum Color { red, green, blue }
+Color favoriteColor = Color.blue;
+```
+
+### 函数与方法相关关键字
+
+```dart
+// 异步函数示例
+Future<String> fetchData() async {
+  await Future.delayed(Duration(seconds: 2));
+  return '数据加载完成';
+}
+
+// Getter和Setter示例
+class Person {
+  String _name;
+
+  String get name => _name;
+  set name(String value) => _name = value;
+
+  // 运算符重载示例
+  Person operator +(Person other) {
+    return Person(name: this.name + other.name);
+  }
+}
+```
+
+### 类与对象相关关键字
+
+```dart
+// 抽象类和继承示例
+abstract class Animal {
+  void makeSound();
+}
+
+class Dog extends Animal {
+  @override
+  void makeSound() {
+    print('汪汪！');
+  }
+}
+
+// Mixin示例
+mixin Flyable {
+  void fly() {
+    print('飞起来了！');
+  }
+}
+
+class Bird with Flyable {
+  // 现在Bird类可以使用fly方法
+}
+```
+
+### 控制流程相关关键字
+
+```dart
+// 条件语句示例
+void checkAge(int age) {
+  if (age < 18) {
+    print('未成年');
+  } else if (age < 60) {
+    print('成年人');
+  } else {
+    print('老年人');
+  }
+}
+
+// 循环语句示例
+void printNumbers() {
+  for (var i = 0; i < 5; i++) {
+    print(i);
+  }
+
+  var numbers = [1, 2, 3];
+  for (var number in numbers) {
+    print(number);
+  }
+}
+```
+
+### 变量修饰符
+
+```dart
+// 变量声明示例
+var name = '张三';  // 类型推断
+final age = 25;    // 不可变变量
+const PI = 3.14;   // 编译时常量
+
+// late初始化示例
+class Person {
+  late String name;
+
+  void setName(String newName) {
+    name = newName;
+  }
+}
+```
+
+### 异常处理相关关键字
+
+```dart
+// 异常处理示例
+void divide(int a, int b) {
+  try {
+    if (b == 0) {
+      throw Exception('除数不能为0');
+    }
+    print(a / b);
+  } catch (e) {
+    print('发生错误: $e');
+  } finally {
+    print('计算完成');
+  }
+}
+```
+
+### 其他关键字
+
+```dart
+// 类型转换和检查示例
+void checkType(dynamic value) {
+  if (value is String) {
+    print('是字符串类型');
+  }
+
+  var number = value as int;  // 类型转换
+}
+
+// 异步流示例
+Stream<int> countStream(int max) async* {
+  for (int i = 0; i < max; i++) {
+    yield i;  // 生成器函数
+  }
+}
+```
+
+## 随机记录
+
+StatefulWidget 是一个有状态的组件，它拥有一个 State 对象，该对象包含了组件的状态信息。State 对象是 Flutter 框架用来管理组件状态的。StatefulWidget 的子类必须实现 createState() 方法，该方法返回一个 State 对象。State 对象包含了组件的状态信息，例如组件的当前值、当前选中的选项等。State 对象的更新会触发组件的更新。
+
+StatelessWeiget
+
+initState() {} //初始化
+
+setState() {} //更新
+
+dispose() {} //销毁
+
+didUpdateWidget() {} //更新
+
+// 一个无参的返回值为空的函数
+typedef VoidCallback = void Function();
+
+// 一个返回值为 Weiget,入参分别为 BuildContex 和 Widget 的函数
+typedef TransitionBuilder = Widget Function(BuildContext context, Widget? child);
+
+// 随机数使用
+
+```dart
+Random _random = Random();
+// 返回0-99的随机整数（不包括100）
+_random.nextInt(100);\
+// 返回0-1 的随机小浮点数（不包括1）
+_random.nextDouble();
+// 随机获取bool值
+_random.nextBool();
 ```
