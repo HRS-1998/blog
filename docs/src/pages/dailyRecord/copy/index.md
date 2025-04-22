@@ -93,3 +93,31 @@ el.scrollIntoView({
 ```
 
 ## node 命令行工具 cac 库
+
+## 一个 css
+
+通过设置 transform: scaleX(-1)实现水平翻转
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      #name {
+        margin-top: 100px;
+        margin-left: 500px;
+        width: 100px;
+        transform: scaleX(-1);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="name">
+      <span>12345</span>
+    </div>
+  </body>
+</html>
+```

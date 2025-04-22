@@ -1,4 +1,4 @@
-示例文件夹目录 D:\\\：
+## 示例文件夹目录 D:\\\：
 
 ```shell
 ├─ flutter
@@ -9,7 +9,7 @@
 
 [官方中文文档](https://docs.flutter.cn/reference/widgets)
 
-安装 flutter sdk
+## 安装 flutter sdk
 
 1. 安装 [flutter sdk](https://docs.flutter.cn/release/archive?tab=windows)
 
@@ -33,7 +33,7 @@
 <!-- 5. 使用 vscode 编辑器 -->
    <!-- - 安装 flutter 插件 (会自动安装 dart 插件) -->
 
-安装 android 工具链
+## 安装 android 工具链
 
 1. 安装 [android sdk](https://developer.android.google.cn/studio?hl=zh-cn)
 2. 配置系统环境变量 `ANDROID_HOME` 为 sdk 路径 例如：`D:\flutter\ansroidSdk`
@@ -51,7 +51,7 @@
 5. 配置 Android 模拟器(在 vscode 中配置也可以)
    ![配置模拟器](./image/android_emulator.png)
 
-vscode 编辑器配置
+## vscode 编辑器配置
 
 1. 安装 flutter 插件 (会自动安装 dart 插件)
 
@@ -64,7 +64,7 @@ vscode 编辑器配置
 解决证书问题后，就只剩 Windows apps 的问题了
 ![cmd_flutter](./image/flutter_01.png)
 
-创建 flutter 项目
+## 创建 flutter 项目
 
 ```bash
 flutter create demo01
@@ -91,19 +91,19 @@ flutter create demo01
 distributionUrl=https://mirrors.aliyun.com/macports/distfiles/gradle/gradle-8.10.2-all.zip
 ```
 
-### flutter devtools
+## flutter devtools
 
 vscode 中 ctrl + shift + P
 
 Flutter: Open DevTools Performance Page 显示性能分析页面
 Flutter: Open DevTools Widget inspector Page 显示控件树，定位控件的代码位置
 
-### 断点调试(日常开发使用)
+## 断点调试(日常开发使用)
 
 配置 launch.json,项目根目录添加使用默认生成的配置文件就可以
 ![launch](./image/launch.png)
 
-### 真机调试
+## 真机调试
 
 连接手机后，开启开发者选项，直接控制台 flutter run 会自动检测，同意即可,然后选择对应的自己设备
 
@@ -155,7 +155,7 @@ flutter pub get
 flutter pub add xxxx(包名)
 ```
 
-### flutter 多版本管理 fvm
+## flutter 多版本管理 fvm
 
 查看 flutter 通道 默认为 stable
 
@@ -220,3 +220,154 @@ fvm flutter build web
 
 fvm flutter run -d chrome
 ```
+
+## flutter 构建 release 版本
+
+1. android\app\src\main\AndroidManifest.xml 和 android\app\src\profile\AndroidManifest.xml
+   这两个 xml 文件中配置应用名,权限
+
+```xml
+<!-- android\app\src\main\AndroidManifest.xml -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" >
+ <uses-permission android:name="android.permission.INTERNET"/>
+  <!-- 音频权限 -->
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+  <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+ <application
+     android:label="测试apk"
+     android:name="${applicationName}"
+     android:icon="@mipmap/ic_launcher">
+     <activity
+   ...
+
+```
+
+```xml
+<!-- android\app\src\profile\AndroidManifest.xml -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" >
+ <!-- The INTERNET permission is required for development. Specifically,
+      the Flutter tool needs it to communicate with the running application
+      to allow setting breakpoints, to provide hot reload, etc.
+ -->
+  <uses-permission android:name="android.permission.INTERNET"/>
+
+  <!-- 音频权限 -->
+  <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+  <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+</manifest>
+
+```
+
+2. 配置不同 dpi 的应用图标，配置开屏界面 android\app\src\main\res
+   ![图标和开屏页面配置](./image/flutter_icon.png)
+   [图标裁剪生成网站](https://icon.wuruihong.com/icon?utm_source=PvdA0H4n#/android)
+
+android\app\src\main\res\drawable\launch_background.xml 这个文件中配置启动页
+
+```xml
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@android:color/white" />
+<!-- 启动页 -->
+    <!-- You can insert your own image assets here -->
+    <item>
+        <bitmap
+            android:gravity="fill"
+            android:src="@mipmap/launch_image" />
+    </item>
+</layer-list>
+```
+
+[启动页图片生成](https://console.eeui.app/tools/launchimage)
+
+3. 配置签名
+
+   3.1 创建签名文件
+   打开 cmd,执行下面的代码，按提示填写，生成 key.jks 文件 YourUsername 为你的用户名文件夹
+
+   ```bash
+   keytool -genkeypair -alias yourKeyAlias -keyalg RSA -keysize 2048 -validity 10000 -keystore C:\Users\YourUsername\key.jks
+
+   ```
+
+   3.2 查看签名文件
+
+   ```bash
+   keytool -list -v -keystore C:\Users\YourUsername\key.jks -storepass 生成时填写的密码
+   ```
+
+   3.3 配置签名文件
+   新建 android\key.properties 文件
+
+   ```properties
+   # 密码
+   storePassword=111222
+   keyPassword=111222
+   # 别名 这里是3.2 中查看到的别名
+   keyAlias=yourkeyalias
+   # 签名文件位置
+   storeFile= C:\Users\YourUsername\key.jks
+
+   ```
+
+   ```js
+   //------- 新增
+   import java.util.Properties
+   //--------
+   plugins {
+    id("com.android.application")
+    id("kotlin-android")
+    id("dev.flutter.flutter-gradle-plugin")
+   }
+   //------- 新增
+   val keystorePropertiesFile = rootProject.file("key.properties")
+   val keystoreProperties = Properties()
+   keystoreProperties.load(keystorePropertiesFile.inputStream())
+   // ---------
+   android {
+   namespace = "com.example.demo02"
+   compileSdk = flutter.compileSdkVersion
+   ndkVersion = flutter.ndkVersion
+       compileOptions {
+           sourceCompatibility = JavaVersion.VERSION_11
+           targetCompatibility = JavaVersion.VERSION_11
+       }
+       kotlinOptions {
+           jvmTarget = JavaVersion.VERSION_11.toString()
+       }
+       defaultConfig {
+           applicationId = "com.example.demo02"
+           minSdk = flutter.minSdkVersion
+           targetSdk = flutter.targetSdkVersion
+           versionCode = flutter.versionCode
+           versionName = flutter.versionName
+       }
+   //------- 新增
+   signingConfigs {
+   create("release") {
+   keyAlias = keystoreProperties["keyAlias"] as String
+   keyPassword = keystoreProperties["keyPassword"] as String
+   storeFile = file(keystoreProperties["storeFile"] as String)
+   storePassword = keystoreProperties["storePassword"] as String
+   }
+   }
+   //--------
+   buildTypes {
+   release {
+   signingConfig = signingConfigs.getByName("release")
+   }
+   }
+   }
+   flutter {
+   source = "../.."
+   }
+
+   ```
