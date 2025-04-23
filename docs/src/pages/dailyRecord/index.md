@@ -111,3 +111,32 @@ el.scrollIntoView({
 1. [安装 gcc 配置系统变量]](https://blog.csdn.net/qq_38196449/article/details/136125995)
 
 2. 安装 vscode 插件 code runner 和 C/C++ Extension Pack
+
+## 一个 css
+
+通过设置 transform: scaleX(-1)实现水平翻转
+文字倒影 -webkit-box-reflect: below;
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      #name {
+        margin-top: 100px;
+        margin-left: 500px;
+        width: 100px;
+        transform: scaleX(-1);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="name">
+      <span>12345</span>
+    </div>
+  </body>
+</html>
+```

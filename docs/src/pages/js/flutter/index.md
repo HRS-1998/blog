@@ -21,7 +21,7 @@
      | 变量名 | 变量值 |
      | :---: | :---: |
      |`PUB_HOSTED_URL`|`https://pub.flutter-io.cn`|
-     |`FLUTTER_STORAGE_BASE_URL`|`https://storage.flutter-io.cn`|
+     |`FLUTTER_STORAGE_BASE_URL`|`https://storage.flutter-io.cn`或`https://mirrors.tuna.tsinghua.edu.cn/dart-pub`|
 
      ![path 配置参考01](./image/flutter_sys_path2.png)
      ![path 配置参考01](./image/flutter_sys_path3.png)
@@ -109,8 +109,12 @@ Flutter: Open DevTools Widget inspector Page 显示控件树，定位控件的�
 
 如果没有网络权限开启网络权限 crtl+P 搜索 AndroidManifest.xml 文件添加
 
+(注：这里在后续使用 dio 网络请求时，出现了 DNS 错误，配置以下权限后，打开 wifi 目前可行)
+
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+<uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 ```
 
 音频权限
@@ -223,6 +227,10 @@ fvm flutter run -d chrome
 
 ## flutter 构建 release 版本
 
+```bash
+ flutter build apk --release
+```
+
 1. android\app\src\main\AndroidManifest.xml 和 android\app\src\profile\AndroidManifest.xml
    这两个 xml 文件中配置应用名,权限
 
@@ -230,6 +238,8 @@ fvm flutter run -d chrome
 <!-- android\app\src\main\AndroidManifest.xml -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android" >
  <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
   <!-- 音频权限 -->
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -255,6 +265,8 @@ fvm flutter run -d chrome
       to allow setting breakpoints, to provide hot reload, etc.
  -->
   <uses-permission android:name="android.permission.INTERNET"/>
+  <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+  <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
   <!-- 音频权限 -->
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -267,11 +279,11 @@ fvm flutter run -d chrome
 
 ```
 
-2. 配置不同 dpi 的应用图标，配置开屏界面 android\app\src\main\res
+2. 配置不同 dpi 的应用图标，配置开屏界面 android\app\src\main\res  
    ![图标和开屏页面配置](./image/flutter_icon.png)
    [图标裁剪生成网站](https://icon.wuruihong.com/icon?utm_source=PvdA0H4n#/android)
 
-android\app\src\main\res\drawable\launch_background.xml 这个文件中配置启动页
+android\app\src\main\res\drawable\launch_background.xml 这个文件中配置启动页 (==启动页界面可以后续使用插件去实现==)
 
 ```xml
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
@@ -318,7 +330,9 @@ android\app\src\main\res\drawable\launch_background.xml 这个文件中配置启
 
    ```
 
-   ```js
+   android\app\build.gradle.kts
+
+   ```kts
    //------- 新增
    import java.util.Properties
    //--------
@@ -371,3 +385,13 @@ android\app\src\main\res\drawable\launch_background.xml 这个文件中配置启
    }
 
    ```
+
+   ## 将 C 盘下的.android 和.gradle 文件夹移动到 D 盘下
+
+   [详细方案](https://blog.csdn.net/m0_74352594/article/details/138633822)
+
+   这里最简单的方法就是 .android 目录下的 avd 文件夹存放的是我们建的模拟器，将模拟器文件直接移到 D 盘,
+   在 c 盘 avd 目录下的配置文件中修改路径即可
+
+   ![移动模拟器文件](./image/avd.png)
+   ![配置文件](./image/avd_path.png)
