@@ -117,7 +117,10 @@ export default defineConfig({
       {
         text: "数据结构",
         items: [
-          { text: "基础", link: "pages/dataStructure/index.md" },
+          { text: "链表", link: "pages/dataStructure/链表.md" },
+          { text: "堆栈", link: "pages/dataStructure/堆栈.md" },
+          { text: "树", link: "pages/dataStructure/树.md" },
+          { text: "排序", link: "pages/dataStructure/排序.md" },
 
         ],
         collapsed: true,
