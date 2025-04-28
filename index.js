@@ -56,23 +56,23 @@
 
 
 
-class DemoForProxy {
-    constructor(name) {
-        this._name = name
-    }
-    getName() {
-        return new Proxy({ add: 1 }, {
-            get: (_, key) => {
-                if (key) return Object.assign({ age: 12 }, { name: this._name })
-                return 1
-            }
-        })
-    }
-}
+// class DemoForProxy {
+//     constructor(name) {
+//         this._name = name
+//     }
+//     getName() {
+//         return new Proxy({ add: 1 }, {
+//             get: (_, key) => {
+//                 if (key) return Object.assign({ age: 12 }, { name: this._name })
+//                 return 1
+//             }
+//         })
+//     }
+// }
 
-const A = new DemoForProxy('A')
-console.log(A.getName())
-console.log(A.getName().a)
+// const A = new DemoForProxy('A')
+// console.log(A.getName())
+// console.log(A.getName().a)
 
 
 // let count = 0;
@@ -95,4 +95,34 @@ console.log(A.getName().a)
 
 
 
+function mergeSort(arr) {
+    if (arr.length <= 1) return arr;
+
+    // 分割点计算
+    const mid = Math.floor(arr.length / 2);
+
+    // 递归分割
+    const left = mergeSort(arr.slice(0, mid));
+    const right = mergeSort(arr.slice(mid));
+
+    // 合并有序数组
+    return merge(left, right);
+}
+
+// 合并两个有序数组
+function merge(left, right) {
+    let result = [];
+    let i = 0,
+        j = 0;
+
+    while (i < left.length && j < right.length) {
+        result.push(left[i] < right[j] ? left[i++] : right[j++]);
+    }
+
+    // 拼接剩余元素
+    return result.concat(i < left.length ? left.slice(i) : right.slice(j));
+}
+
+const arr = [5, 2, 9, 1, 5, 6, 19, 3, 5, 7, 8];
+console.log(mergeSort(arr));
 
