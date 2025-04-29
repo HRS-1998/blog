@@ -25,47 +25,46 @@ export default defineConfig({
 
     sidebar: [
       {
-        text: "HTML",
-        items: [
-          { text: "page1", link: "pages/html/index.md" },
-        ],
-        collapsed: true,
-      },
-      {
-        text: "CSS",
-        items: [
-          { text: "css", link: "pages/css/css/index.md" },
-          { text: "sass", link: "pages/css/sass/index.md" },
-          { text: "tailwindcss", link: "pages/css/tailwindcss/index.md" },
-
-        ],
-        collapsed: true,
-      },
-      {
         text: "语言系列",
         items: [
           {
-            text: "js", items: [
-              { text: "基础", link: "pages/js/index.md" },
-              { text: "DOM事件流", link: "pages/js/DOM事件流.md" },
-              { text: "DOM文档流", link: "pages/js/文档流.md" },
-              { text: "ao和vo", link: "pages/js/ao和vo.md" },
-              { text: "函数重载", link: "pages/js/函数重载.md" },
-              { text: "promise及其应用", link: "pages/js/promise.md" },
+            text: "HTML",
+            items: [
+              { text: "page1", link: "pages/language/html/index.md" },
+            ],
+            collapsed: true,
+          },
+          {
+            text: "CSS",
+            items: [
+              { text: "css", link: "pages/language/css/css/index.md" },
+              { text: "sass", link: "pages/language/css/sass/index.md" },
+              { text: "tailwindcss", link: "pages/language/css/tailwindcss/index.md" },
 
+            ],
+            collapsed: true,
+          },
+          {
+            text: "JS", items: [
+              { text: "基础", link: "pages/language/js/index.md" },
+              { text: "DOM事件流", link: "pages/language/js/DOM事件流.md" },
+              { text: "DOM文档流", link: "pages/language/js/文档流.md" },
+              { text: "ao和vo", link: "pages/language/js/ao和vo.md" },
+              { text: "函数重载", link: "pages/language/js/函数重载.md" },
+              { text: "promise及其应用", link: "pages/language/js/promise.md" },
             ],
             collapsed: true
           },
-          { text: "ts", link: "pages/js/index.md" },
-          { text: "node", link: "pages/js/index.md" },
+          { text: "TS", link: "pages/js/index.md" },
+          { text: "Node", link: "pages/js/index.md" },
         ],
         collapsed: true,
       },
       {
         text: "框架库",
         items: [
-          { text: "vue", link: "pages/vue/index.md" },
-          { text: "react", link: "pages/vue/index.md" },
+          { text: "vue", link: "pages/library/vue/index.md" },
+          { text: "react", link: "pages/library/react/index.md" },
         ],
         collapsed: true,
       },
@@ -87,14 +86,14 @@ export default defineConfig({
       {
         text: "源码系列",
         items: [
-          { text: "promise", link: "pages/minprogram/index.md" },
-          { text: "axios", link: "pages/minprogram/index.md" },
-          { text: "vue", link: "pages/minprogram/index.md" },
-          { text: "react", link: "pages/minprogram/index.md" },
+          { text: "promise", link: "pages/source/index.md" },
+          { text: "axios", link: "pages/source/index.md" },
+          { text: "vue", link: "pages/source/index.md" },
+          { text: "react", link: "pages/source/index.md" },
           { text: "vite", link: "pages/source/vite/index.md" },
-          { text: "webpack", link: "pages/minprogram/index.md" },
-          { text: "rollup", link: "pages/minprogram/index.md" },
-          { text: "ant-design", link: "pages/minprogram/index.md" },
+          { text: "webpack", link: "pages/source/index.md" },
+          { text: "rollup", link: "pages/source/index.md" },
+          { text: "ant-design", link: "pages/source/index.md" },
         ],
         collapsed: true,
       },
@@ -138,6 +137,13 @@ export default defineConfig({
         text: "部署",
         items: [
           { text: "page1", link: "pages/deploy/index.md" },
+        ],
+        collapsed: true,
+      },
+      {
+        text: "性能优化",
+        items: [
+          { text: "page1", link: "pages/xingneng/index.md" },
         ],
         collapsed: true,
       },

@@ -25,3 +25,8 @@
    ![vue3 diff 过程](./imgs/v3diff.png)
    ![vue3 diff 过程](./imgs/v3diff01.png)
    ![vue3 diff 过程](./imgs/v3diff02.png)
+
+v-cloak 指令： vue 内部指令，用于解决网络较差时，，网页还在加载 Vue.js ，而导致 Vue 来不及渲染，这时页面就会显示出 Vue 中 template 源代码。
+
+[参考](https://www.jianshu.com/p/f56cde007210)
+`

@@ -1,0 +1,118 @@
+## 字体子集化
+
+[引用](https://blog.oonne.com/detail/font-face)
+前言
+使用个性化的字体是设计师的基本诉求。在 web 端使用特殊字体，前端工程师更喜欢引入自定义字体（@font-face），而不是用图。因为使用字体有若干好处：
+
+1. 内容可以被复制，用户体验更好
+2. 方便修改内容（在 HTML 中直接修改文字）
+3. 方便矢量缩放（在 CSS 中使用 font-size 定义大小）
+4. 方便修改颜色（在 CSS 中使用 color 定义大小）
+5. 内容与样式分离，代码可读性高
+6. 利于 SEO
+
+然而，中文的字体文件一般都很大，动辄几 M 的文件严重拖累了页面的加载速度，用户体验难以接受。而我们需要的字形往往就只有标题、solgen 那几个，字体子集化就是在这种需求下诞生的：只提取需要用到的字形，大幅精简字体文件的大小。
+
+本文介绍字体子集化的原理，并安利多种字体子集化的方案。
+
+字体子集化的原理
+
+中文字体的原理是这样：计算机对每个汉字进行编码，每个 unicode 码对应一个汉字。字体文件（font），就是对相应的 unicode 编码，指定一个字形（glyph）。计算机显示文字时，就按照这个字形来渲染。不同的字体对同一个文字定义的字形不一样，所以指定不同的字体就能有不同的样式。对于字体里未定义到的字形，使用默认字体进行渲染。
+
+我们通常在网上下载开源的字体，都包含了大量的字形。比如经典的思源黑体就有一个“完全体”版本——填满 OTF 字符数上限（65535 个），覆盖简繁日韩字型的宏伟工程。就算是思源黑的简体中文子集，也收录了超过三万个字形。这么多的字形塞在一个字体文件里，字体文件自然会很大。所谓字体子集化，就是只提取需要用到的若干字形，生成一个非常小的字体文件，达到按需使用字形的效果。
+
+因为各种历史原因，字体有若干格式，设计师常用的是 ttf 格式（TrueType）和 otf 格式（OpenType）。浏览器对字体的兼容性如下：
+
+| 格式  | IE  | Firefox | Chrome | Safari | iOS | Android |
+| :---- | :-- | :------ | :----- | :----- | :-- | :------ |
+| .otf  | 9   | 3.5     | 4.4    | 5.1    | 5.1 | 4.4     |
+| .ttf  | 9   | 3.5     | 4.4    | 5.1    | 5.1 | 4.4     |
+| .svg  | 9   | 3.5     | 4.4    | 5.1    | 5.1 | 4.4     |
+| .woff | 9   | 3.6     | 4.4    | 5.1    | 5.1 | 4.4     |
+| .eot  | 9   | 3.5     | 4.4    | 5.1    | 5.1 | 4.4     |
+
+（表格来源：http://caniuse.com/#feat=fontface）
+
+看完上表，偷懒不想兼容 IE 的人一拍桌子说：我只用 ttf 格式就够了。但其实这些格式之间的转换非常容易。且不说各种字体制作软件，即使想用脚本自动转换，npm 上也有 ttf2eot、ttf2svg、ttf2woff、otf2ttf、svg2ttf 等可以放心食用。
+
+字体子集化的方案 1.字体制作软件
+常用的字体编辑软件如 Fontforge、FontLab
+Studio、FontCreator 等，支持直接对字体的每一个字形进行编辑。设计师可以根据自己的需求绘制需要的字形，生成字体文件给到开发人员。偷懒的话，也可以找现成的字体，删除不必要的字符，并对需要的字符进行个性化加工。FontLab
+Studio 和 FontCreator 都是收费软件，设计字体也是非常辛苦的工作，推荐设计能力过剩的人使用。
+
+2.简单工具
+sfnttool.jar（JAVA）、Font Optimizer（Perl）、fonttools（python），挑顺手的用就行。
+
+个人推荐：fonttools。健壮性不错，对 otf 的支持比下文 Node.js 的方案更完善，还支持压缩、微调等一系列功能。
+
+3.前端工程化
+前端从业人员用得最顺手的毕竟还是 javascript，总是希望这些工作能够用脚本自动完成，于是单独拎出来详细讲。
+
+font-carrier 是一个功能强大的字体操作库，可以在 svg 维度改造字形。基于它有专门用于字体子集化的 font-collector。
+
+fonteditor-core 可以从 ttf 字体中提取指定编码的字形。基于它有了 fontmin，写得非常好，也是目前最流行的前端字体子集化方案。如果想要整合进 gulp 流程中，还有 gulp-fontmin。
+
+但上述的方案都需要自己输入子集化的内容。有人懒到连这一步也不想做，想要程序能自动分析页面内容，于是有了基于 fontmin 的 font-spider（什么，星星竟然比 fontmin 还多）。当然也配套了 gulp-font-spider。
+
+个人推荐：想偷懒用 font-spider，有能力可以基于 fontmin 打造自己的开发流程。
+
+vite 中使用
+
+```js
+// vite.config.js
+import { defineConfig } from "vite";
+import vue from "@vitejs/plugin-vue";
+import fontSpider from "vite-plugin-font-spider";
+
+export default defineConfig({
+  plugins: [
+    vue(),
+    fontSpider({
+      configPath: "font-spider-config.json", // 指定配置文件路径
+    }),
+  ],
+});
+
+{
+  "scripts": {
+    "build": "font-spider && vite build"
+  }
+}
+
+```
+
+// 目录结构
+my-vue-vite-project/
+├── src/
+│ ├── assets/
+│ │ └── fonts/
+│ │ ├── source-font.ttf
+│ │ └── subset-fonts/
+│ ├── components/
+│ ├── views/
+│ ├── App.vue
+│ └── main.js
+├── index.html
+├── font-spider-config.json
+├── vite.config.js
+├── package.json
+└── README.md
+
+```js
+// vite.config.js
+import { defineConfig } from "vite";
+import Font from "vite-plugin-font";
+export default defineConfig({
+  plugins: [
+    Font.vite({
+      // 配置选项
+      fontName: "custom-font", // 字体名称
+      formats: ["woff2", "woff"], // 输出字体格式
+      injectTo: "style", // 注入方式
+      include: ["src/assets/fonts/**/*.{ttf,otf}"], // 包含的字体文件路径
+      exclude: [], // 排除的字体文件路径
+      // 其他配置选项
+    }),
+  ],
+});
+```
