@@ -231,3 +231,52 @@ Array.prototype.myReduce = function (fn, initData) {
 //1.限制次数函数，并发控制函数
 
 。/
+
+运算精确性 [https://b23.tv/AeYkW2f](https://b23.tv/AeYkW2f)
+
+0.3 - 0.2
+
+a. 存储 二进制存储不精确
+
+```js
+// 无限循环
+console.log((0.3).toString(2));
+```
+
+b. 运算 可能丢失精度
+
+c. 显示 不精确
+
+标记语言： label
+
+> 标记语言时任何带有标识符前缀的语句，你可以使用嵌套在标记语句中的 break 和 continue 语句来跳转至标记语句。
+
+```js
+let str = "";
+
+loop1: for (let i = 0; i < 5; i++) {
+  if (i === 1) {
+    continue loop1;
+  }
+  str = str + i;
+}
+
+console.log(str);
+// Expected output: "0234"
+```
+
+with 语句 (弃用)
+
+> with 语句允许你使用对象属性来引用对象成员。
+
+```js
+let obj = { a: 1, b: 2 };
+with (obj) {
+  console.log(a, b);
+  //excepted output: 1, 2
+  let a = 3;
+  let b = 4;
+  console.log(a, b);
+  // excepted output: 3, 4
+}
+```

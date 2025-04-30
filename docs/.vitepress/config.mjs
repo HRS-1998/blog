@@ -143,7 +143,7 @@ export default defineConfig({
       {
         text: "性能优化",
         items: [
-          { text: "page1", link: "pages/xingneng/index.md" },
+          { text: "字体", link: "pages/xingneng/字体.md" },
         ],
         collapsed: true,
       },
