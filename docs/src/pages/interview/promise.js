@@ -154,9 +154,21 @@ class myPromise {
 
     }
 
-    then(result, reason) { }
-    finally() { }
-    catch() {
+    then(onFulfilled, onRejected) {
+        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : val => val
+        onRejected = typeof onRejected === 'function' ? onRejected : reason => { throw reason }
+    }
+    finally(cb) {
+
+        return this.then(res => {
+            Promise.resolve(cb).then(() => res)
+        }, rej => {
+            Promise.resolve(cb).then(() => { throw rej })
+
+        })
+    }
+    catch(cb) {
+        this.then(null, cb)
 
     }
 }
@@ -170,3 +182,14 @@ const promise = new myPromise((resolve, reject) => {
 //迭代器和生成器
 
 //DOM
+
+// const promise = new Promise((resolve, reject) => {
+//     resolve(111);
+//     reject("111");
+// });
+
+// promise.then(result => {
+//     console.log(result);
+// }).catch(reason => {
+//     console.log(reason);
+// })

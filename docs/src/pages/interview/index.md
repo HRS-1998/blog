@@ -25,7 +25,7 @@ Function.prototype.myApply=function(target,args){
 //bind
 Function.prototype.myBind=function(fn){
   if(typeof this != 'function') throw new Error('非函数调用')
-  let args= Array.prototype.slice.call(arguements,                                                                                                                                                         1)
+  let args= Array.prototype.slice.call(arguements,1)
    let self =this
    return function A(...rest){
       //如果new 调用
@@ -53,7 +53,7 @@ function myNew(fn, ...args) {
   let obj = {};
   obj.__proto__ = fn.prototype;
   let res = fn.apply(obj, args);
-  typeof res === "object" || res instanceof Function ? res : obj;
+  return typeof res === "object" || res instanceof Function ? res : obj;
 }
 ```
 
@@ -71,7 +71,7 @@ function debounce(fn, delay, immediate) {
       timer = setTimeout(() => {
         timer = null;
       }, delay);
-      fn.apply(this, args);
+      if (callNow) fn.apply(this, args);
     } else {
       timer = setTimeout(() => {
         fn.apply(this, args);
