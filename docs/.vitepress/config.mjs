@@ -101,6 +101,7 @@ export default defineConfig({
         text: "手写系列",
         items: [
           { text: "常见手写实现", link: "pages/interview/index.md" },
+          { text: "面试记录", link: "pages/interview/record/01/01.md" },
 
         ],
         collapsed: true,
