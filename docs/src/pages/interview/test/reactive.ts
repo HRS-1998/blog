@@ -27,11 +27,11 @@ function reactive(target){
     
 }
 
-const a  = reactive({name: 'a',age:11});
+const a  = reactive({age:11});
 let b;
 effect(()=>{
    b= a.age +1
 })
-console.log(b);
-a.name =4
-console.log(b)
+console.log(b);  //expect  12
+a.age++
+console.log(b)   //expect  13

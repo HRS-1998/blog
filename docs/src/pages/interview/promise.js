@@ -155,8 +155,8 @@ class myPromise {
     }
 
     then(onFulfilled, onRejected) {
-        onFulfilled = typeof onFulfilled === 'function' ? onFulfilled : val => val
-        onRejected = typeof onRejected === 'function' ? onRejected : reason => { throw reason }
+        typeof onFulfilled === 'function' ? onFulfilled : val => val
+        typeof onRejected === 'function' ? onRejected : reason => { throw reason }
     }
     finally(cb) {
 

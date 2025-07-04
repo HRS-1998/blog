@@ -220,6 +220,35 @@ Array.prototype.myReduce = function (fn, initData) {
 
 ==**09**浅拷贝和深拷贝==
 
+```js
+function deepCopy(obj,map=new weakMap()){
+  if(typeof obj != 'Object') || obj == null) return obj;
+  // let target = Array.isArray(obj) ? [] : {};
+  // if(map.get(obj)) return map.get(obj);
+  // map.set(obj,target);
+  // for(let key in obj){
+  //   target[key] = deepCopy(obj[key],map);
+  // }
+  // return target;
+  let target
+  if(Array.isArray(obj)){
+    target = [];
+    for(let i = 0; i < obj.length; i++){
+      target[i] = deepCopy(obj[i],map);
+    }
+  }
+  if(typeof obj == 'object'){
+    target = {};
+    for(let key in obj){
+      if(obj.hasOwnProperty(key)){
+        target[key] = deepCopy(obj[key],map);
+      }
+    }
+  }
+  return target;
+}
+```
+
 ==**10**node 事件循环，浏览器事件循环，浏览器渲染原理==
 
 ==**11**promise 实现==

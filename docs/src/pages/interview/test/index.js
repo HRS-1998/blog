@@ -77,3 +77,7 @@ function deepClone(target, map = new WeakMap()) {
     // }
 
 }
+
+new Promise((resolve, reject) => {
+
+}).then(res => { }, reason => { })
