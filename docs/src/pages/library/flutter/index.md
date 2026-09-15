@@ -16,15 +16,15 @@
 2. 配置系统环境变量
 
    - Path 中 添加 flutter/bin 例如： `D:\flutter\flutterSdk\bin`
-     ![path 配置参考01](./image/flutter_sys_path.png)
+     ![path 配置参考01](http://49.235.131.245/blog/images/flutter_sys_path.png)
    - 添加系统变量,用于配置镜像
      | 变量名 | 变量值 |
      | :---: | :---: |
      |`PUB_HOSTED_URL`|`https://pub.flutter-io.cn`|
      |`FLUTTER_STORAGE_BASE_URL`|`https://storage.flutter-io.cn`或`https://mirrors.tuna.tsinghua.edu.cn/dart-pub`|
 
-     ![path 配置参考01](./image/flutter_sys_path2.png)
-     ![path 配置参考01](./image/flutter_sys_path3.png)
+     ![path 配置参考01](http://49.235.131.245/blog/images/flutter_sys_path2.png)
+     ![path 配置参考01](http://49.235.131.245/blog/images/flutter_sys_path3.png)
 
 3. cmd 中执行 flutter --version 查看是否安装成功
 
@@ -37,7 +37,7 @@
 
 1. 安装 [android sdk](https://developer.android.google.cn/studio?hl=zh-cn)
 2. 配置系统环境变量 `ANDROID_HOME` 为 sdk 路径 例如：`D:\flutter\ansroidSdk`
-   ![配置系统环境变量](./image/android_sys_path.png)
+   ![配置系统环境变量](http://49.235.131.245/blog/images/android_sys_path.png)
 3. androidStudio 中安装 plugin : `flutter` + `dart` 插件
 4. 设置中 Android SDK 安装以下组件
    - Android SDK Platform, API 35.0.2
@@ -45,24 +45,24 @@
    - Android SDK Build-Tools
    - Android SDK Platform-Tools
    - Android Emulator
-   ![AS Android SDK组件](./image/ASSetting_01.png)
-   ![AS Android SDK组件](./image/ASSetting_02.png)
+   ![AS Android SDK组件](http://49.235.131.245/blog/images/ASSetting_01.png)
+   ![AS Android SDK组件](http://49.235.131.245/blog/images/ASSetting_02.png)
    <!-- 5. androidStudio 中配置模拟器 （ide 右侧 Device Manager） -->
 5. 配置 Android 模拟器(在 vscode 中配置也可以)
-   ![配置模拟器](./image/android_emulator.png)
+   ![配置模拟器](http://49.235.131.245/blog/images/android_emulator.png)
 
 ## vscode 编辑器配置
 
 1. 安装 flutter 插件 (会自动安装 dart 插件)
 
 2. 右下角选择对应虚拟机器，运行 flutter run 命令
-   ![vscode 运行 flutter app](./image/VSCode_01.png)
+   ![vscode 运行 flutter app](http://49.235.131.245/blog/images/VSCode_01.png)
 
 以上完成后，在 cmd 中运行 flutter doctor 查看是否正常
 目前有证书 license 问题，需要按提示运行 flutter doctor --android-licenses
 
 解决证书问题后，就只剩 Windows apps 的问题了
-![cmd_flutter](./image/flutter_01.png)
+![cmd_flutter](http://49.235.131.245/blog/images/flutter_01.png)
 
 ## 创建 flutter 项目
 
@@ -101,7 +101,7 @@ Flutter: Open DevTools Widget inspector Page 显示控件树，定位控件的�
 ## 断点调试(日常开发使用)
 
 配置 launch.json,项目根目录添加使用默认生成的配置文件就可以
-![launch](./image/launch.png)
+![launch](http://49.235.131.245/blog/images/launch.png)
 
 ## 真机调试
 
@@ -143,7 +143,7 @@ flutter run
 
 ```
 
-![真机调试](./image/test.jpg)
+![真机调试](http://49.235.131.245/blog/images/test.jpg)
 
 安装包
 [插件市场](https://pub-web.flutter-io.cn/)
@@ -280,7 +280,7 @@ fvm flutter run -d chrome
 ```
 
 2. 配置不同 dpi 的应用图标，配置开屏界面 android\app\src\main\res  
-   ![图标和开屏页面配置](./image/flutter_icon.png)
+   ![图标和开屏页面配置](http://49.235.131.245/blog/images/flutter_icon.png)
    [图标裁剪生成网站](https://icon.wuruihong.com/icon?utm_source=PvdA0H4n#/android)
 
 android\app\src\main\res\drawable\launch_background.xml 这个文件中配置启动页 (==启动页界面可以后续使用插件去实现==)
@@ -393,5 +393,5 @@ android\app\src\main\res\drawable\launch_background.xml 这个文件中配置启
    这里最简单的方法就是 .android 目录下的 avd 文件夹存放的是我们建的模拟器，将模拟器文件直接移到 D 盘,
    在 c 盘 avd 目录下的配置文件中修改路径即可
 
-   ![移动模拟器文件](./image/avd.png)
-   ![配置文件](./image/avd_path.png)
+   ![移动模拟器文件](http://49.235.131.245/blog/images/avd.png)
+   ![配置文件](http://49.235.131.245/blog/images/avd_path.png)

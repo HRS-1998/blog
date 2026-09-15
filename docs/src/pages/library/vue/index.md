@@ -1,8 +1,8 @@
 ## vue2 和 vue3 中的 diff 算法
 
 1. vue2
-   ![vue2 diff 过程](./imgs/diff.png)
-   ![vue2 diff 过程](./imgs/diff01.png)
+   ![vue2 diff 过程](http://49.235.131.245/blog/images/diff.png)
+   ![vue2 diff 过程](http://49.235.131.245/blog/images/diff01.png)
    解释：其中判断 oldVnode 和 newVnode 是否相等的原因是初始化时，非虚拟节点需要先转为虚拟节点
    判断父节点是否相同需要 key 相同且 sel(选择器标签) 相同
    updateChildren 这里会采用一下四个比较规则，如果当前规则未命中则使用下一个规则，命中就不会继续
@@ -22,9 +22,9 @@
    a. 对新旧元素位置映射表中值为 0 的，则新增;
    b. 在最长字串序列中则不动
    c.不在最长字串中则需要移动
-   ![vue3 diff 过程](./imgs/v3diff.png)
-   ![vue3 diff 过程](./imgs/v3diff01.png)
-   ![vue3 diff 过程](./imgs/v3diff02.png)
+   ![vue3 diff 过程](http://49.235.131.245/blog/images/v3diff.png)
+   ![vue3 diff 过程](http://49.235.131.245/blog/images/v3diff01.png)
+   ![vue3 diff 过程](http://49.235.131.245/blog/images/v3diff02.png)
 
 v-cloak 指令： vue 内部指令，用于解决网络较差时，，网页还在加载 Vue.js ，而导致 Vue 来不及渲染，这时页面就会显示出 Vue 中 template 源代码。
 

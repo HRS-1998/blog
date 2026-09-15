@@ -6,7 +6,7 @@ export default defineConfig({
   title: "yemei的博客",
   titleTemplate: "cy",
   description: "一个前端学习的地方",
-  head: [["link", { rel: "icon", href: "/blog/pg.jpg" }]],
+  head: [["link", { rel: "icon", href: "http://49.235.131.245/blog/images/logo.jpg" }]],
   base: "/blog/",
   srcDir: "./src",
   outDir: "./dist",
@@ -16,7 +16,7 @@ export default defineConfig({
   ignoreDeadLinks: true,//这里打包时忽略本地链接导致的无效
   themeConfig: {
     // 主题级选项
-    logo: "/pg.jpg",
+    logo: "http://49.235.131.245/blog/images/logo.jpg",
     nav: [
       { text: "导航一", link: "https://github.com/HRS-1998/" },
       { text: "导航二", link: "https://github.com/HRS-1998/" },
@@ -30,7 +30,7 @@ export default defineConfig({
           {
             text: "HTML",
             items: [
-              { text: "page1", link: "pages/language/html/index.md" },
+              { text: "HTML 基础", link: "pages/language/html/index.md" },
             ],
             collapsed: true,
           },
@@ -38,9 +38,9 @@ export default defineConfig({
             text: "CSS",
             items: [
               { text: "css", link: "pages/language/css/css/index.md" },
+              { text: "csssecret", link: "pages/language/css/csssecret/index.md" },
               { text: "sass", link: "pages/language/css/sass/index.md" },
               { text: "tailwindcss", link: "pages/language/css/tailwindcss/index.md" },
-
             ],
             collapsed: true,
           },
@@ -51,12 +51,13 @@ export default defineConfig({
               { text: "DOM文档流", link: "pages/language/js/文档流.md" },
               { text: "ao和vo", link: "pages/language/js/ao和vo.md" },
               { text: "函数重载", link: "pages/language/js/函数重载.md" },
+              { text: "数据类型转换", link: "pages/language/js/数据类型转换.md" },
               { text: "promise及其应用", link: "pages/language/js/promise.md" },
+              { text: "NodeList与HTMLCollection", link: "pages/language/js/test.md" },
+              { text: "node执行shell脚本", link: "pages/language/js/exec.md" },
             ],
             collapsed: true
           },
-          { text: "TS", link: "pages/js/index.md" },
-          { text: "Node", link: "pages/js/index.md" },
         ],
         collapsed: true,
       },
@@ -64,13 +65,18 @@ export default defineConfig({
         text: "框架库",
         items: [
           { text: "vue", link: "pages/library/vue/index.md" },
-          { text: "react", link: "pages/library/react/index.md" },
+          { text: "vue-render", link: "pages/library/vue/hAndRender.md" },
+          { text: "nuxt", link: "pages/library/vue/nuxt.md" },
+          { text: "flutter-dart", link: "pages/library/flutter/dart.md" },
+          { text: "flutter-widget", link: "pages/library/flutter/widget.md" },
         ],
         collapsed: true,
       },
       {
         text: "工程化",
         items: [
+          { text: "docker", link: "pages/enginee/index.md" },
+          { text: "package.json", link: "pages/enginee/packagejson/index.md" },
           { text: "postcss", link: "pages/enginee/postcss/index.md" },
         ],
         collapsed: true,
@@ -86,23 +92,15 @@ export default defineConfig({
       {
         text: "源码系列",
         items: [
-          { text: "promise", link: "pages/source/index.md" },
-          { text: "axios", link: "pages/source/index.md" },
-          { text: "vue", link: "pages/source/index.md" },
-          { text: "react", link: "pages/source/index.md" },
           { text: "vite", link: "pages/source/vite/index.md" },
-          { text: "webpack", link: "pages/source/index.md" },
-          { text: "rollup", link: "pages/source/index.md" },
-          { text: "ant-design", link: "pages/source/index.md" },
         ],
         collapsed: true,
       },
       {
-        text: "手写系列",
+        text: "手写与面试",
         items: [
           { text: "常见手写实现", link: "pages/interview/index.md" },
           { text: "面试记录", link: "pages/interview/record/01/01.md" },
-
         ],
         collapsed: true,
       },
@@ -110,19 +108,26 @@ export default defineConfig({
         text: "设计模式",
         items: [
           { text: "常见14种设计模式", link: "pages/designPattern/index.md" },
-
         ],
         collapsed: true,
       },
       {
         text: "数据结构",
         items: [
+          { text: "概述", link: "pages/dataStructure/index.md" },
           { text: "链表", link: "pages/dataStructure/链表.md" },
           { text: "堆栈", link: "pages/dataStructure/堆栈.md" },
+          { text: "队列", link: "pages/dataStructure/队列.md" },
           { text: "树", link: "pages/dataStructure/树.md" },
           { text: "图", link: "pages/dataStructure/图.md" },
           { text: "排序", link: "pages/dataStructure/排序.md" },
-
+        ],
+        collapsed: true,
+      },
+      {
+        text: "性能优化",
+        items: [
+          { text: "字体", link: "pages/performance/字体.md" },
         ],
         collapsed: true,
       },
@@ -130,25 +135,11 @@ export default defineConfig({
         text: "日常记录",
         items: [
           { text: "随机记录", link: "pages/dailyRecord/index.md" },
-
+          { text: "c语言笔记", link: "pages/dailyRecord/c语言笔记.md" },
+          { text: "工具与部署记录", link: "pages/ways.md" },
         ],
         collapsed: true,
       },
-      {
-        text: "部署",
-        items: [
-          { text: "page1", link: "pages/deploy/index.md" },
-        ],
-        collapsed: true,
-      },
-      {
-        text: "性能优化",
-        items: [
-          { text: "字体", link: "pages/xingneng/字体.md" },
-        ],
-        collapsed: true,
-      },
-
     ],
     socialLinks: [{ icon: "github", link: "https://github.com/HRS-1998/" }],
     outlineTitle: "页面目录",

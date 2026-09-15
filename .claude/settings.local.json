@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(codegraph init *)",
+      "Bash(C:\\\\Users\\\\ctwl\\\\AppData\\\\Local\\\\codegraph\\\\current\\\\bin\\\\codegraph.cmd init *)",
+      "Bash(rtk ls *)",
+      "Bash(rtk find *)",
+      "Bash(rtk diff *)",
+      "Bash(rtk grep *)",
+      "Bash(rtk read *)",
+      "Bash(rm -rf docs/src/pages/dailyRecord/copy docs/src/pages/3d docs/src/pages/xingneng/图片.md index.js index2.html favoriate.html)",
+      "Bash(rtk git *)",
+      "Bash(printf '\\\\n## keep-alive 组件 以及 http 中的 keep-alive 机制\\\\n')",
+      "Bash(tail -n +3 index.md)",
+      "Bash(rm index.md)",
+      "Bash(rm interview/index01.md)",
+      "Bash(rtk wc *)",
+      "Bash(printf '\\\\n## 数据结构分类与树的遍历\\\\n')",
+      "Bash(tail -n +2 index01.md)",
+      "Bash(rm index01.md)",
+      "Bash(mv c.md ../dailyRecord/c语言笔记.md)",
+      "Bash(xxd source/axios/index.md)",
+      "Bash(rtk npm *)",
+      "Bash(rtk npx *)",
+      "Bash(rtk pnpm *)",
+      "Bash(rtk proxy *)",
+      "Bash(git mv *)",
+      "Bash(rmdir docs/src/pages/language/css/images)",
+      "Bash(git rm *)"
+    ]
+  }
+}

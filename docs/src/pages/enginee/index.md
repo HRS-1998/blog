@@ -15,7 +15,7 @@
     - docekr images
   - 创建镜像
     - 使用 commit 创建镜像
-    - ![docker创建镜像](./imgs/docker_04.png)
+    - ![docker创建镜像](http://49.235.131.245/blog/images/docker_04.png)
   - DockerFile 文件的基本指令
     - FROM 定义基础镜像
     - MAINTAINER 作者或维护者
@@ -24,11 +24,11 @@
     - EVN 定义环境变量
     - CMD 运行进程
     - 示例(文档中有详解内容)
-      ![dockerFile示例](./imgs/docker_05.png)
+      ![dockerFile示例](http://49.235.131.245/blog/images/docker_05.png)
 - DockerContainer 容器 - 是一个镜像的运行实例
   - 运行过程
-    ![docker](./imgs/docker_03.png) 1.运行`$ docker run -i -t ubuntu /bin/bash`拉取镜像
+    ![docker](http://49.235.131.245/blog/images/docker_03.png) 1.运行`$ docker run -i -t ubuntu /bin/bash`拉取镜像
     2.Docker Engine 检查 ubuntu 镜像是否存在，如果本地已经存在，使用该镜像创建容器，如果不存在，Docker Engine 从镜像库拉取镜像，使用该镜像创建新容器 3.分配文件系统，挂载一个读写层，在读写层加载镜像 4.分配网络/网桥接口，创建一个网络接口，让容器和主机通信 5.从可用的 IP 池选择 IP 地址，分配给容器 6.执行命令/bin/bash 捕获和提供执行结果
 - Docker Registry 仓库
-  ![docker](./imgs/docker_01.webp)
-  ![docker](./imgs/docker.webp)
+  ![docker](http://49.235.131.245/blog/images/docker_01.webp)
+  ![docker](http://49.235.131.245/blog/images/docker.webp)
