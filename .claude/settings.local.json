@@ -26,7 +26,9 @@
       "Bash(rtk proxy *)",
       "Bash(git mv *)",
       "Bash(rmdir docs/src/pages/language/css/images)",
-      "Bash(git rm *)"
+      "Bash(git rm *)",
+      "Bash(awk '/^```/{f=!f;next} !f && /<[a-zA-Z]/' *.md)",
+      "Bash(node -e ' *)"
     ]
   }
 }
