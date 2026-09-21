@@ -45,7 +45,8 @@
       "Bash(node *)",
       "Bash(git checkout *)",
       "Bash(pnpm add *)",
-      "Bash(echo \"exit=$?\")"
+      "Bash(echo \"exit=$?\")",
+      "Bash(git check-ignore *)"
     ]
   }
 }

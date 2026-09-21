@@ -21,6 +21,19 @@ export default defineConfig({
   ignoreDeadLinks: true, //这里打包时忽略本地链接导致的无效
   themeConfig: {
     // 主题级选项
+    search: {
+      provider: 'local',
+      options: {
+        translations: {
+          button: { buttonText: '搜索文档', buttonAriaLabel: '搜索文档' },
+          modal: {
+            noResultsText: '未找到相关结果',
+            resetButtonTitle: '清除查询条件',
+            footer: { selectText: '选择', navigateText: '切换', closeText: '关闭' },
+          },
+        },
+      },
+    },
     logo: 'http://49.235.131.245/blog/images/logo.jpg',
     nav: [
       {
