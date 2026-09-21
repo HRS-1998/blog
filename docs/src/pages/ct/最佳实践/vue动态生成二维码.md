@@ -1,10 +1,10 @@
-1.项目引入 qrcodejs2 包
+1. 项目引入 qrcodejs2 包
 ·npm install qrcodejs2 -S
 
-2.在对应页面中引入
+2. 在对应页面中引入
 import QRCode from 'qrcodejs2';
 
-3.在代码中使用
+3. 在代码中使用
 
 ```javascript
   //参数自定义

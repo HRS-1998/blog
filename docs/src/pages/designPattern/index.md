@@ -68,7 +68,7 @@ createIframe("http://www.baidu.com");
 createIframe("http://www.sina.com.cn"); //只创建了一次iframe
 ```
 
-2.策略模式
+2. 策略模式
 
 ```js
 // 将算法和实现解耦

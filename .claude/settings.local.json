@@ -32,7 +32,20 @@
       "Bash(sed -i 's|\\\\.\\\\./images/ct-|http://49.235.131.245/blog/images/ct-|g' \"ct/知识库/ecma5兼容.md\" \"ct/微信公众号/微信公共页面解决方案.md\" \"ct/最佳实践/移动h5支付流程.md\")",
       "Bash(rm -rf ct/images)",
       "Bash(rtk curl *)",
-      "Bash(rtk playwright *)"
+      "Bash(rtk playwright *)",
+      "Bash(awk '/^```/{print NR\": \"\\($0==\"```\"?\"close\":\"open\"\\)}' ./source/vite/index.md)",
+      "Bash(awk -F': ' 'BEGIN{depth=0} {if\\($2==\"open\"\\)depth++; else depth--; if\\(depth<0\\){print \"EXTRA CLOSE at line \"$1; depth=0}}')",
+      "Bash(awk '/^```/{c++} END{print \"total: \"c}' ./source/vite/index.md)",
+      "Bash(awk -F: '$1>2740')",
+      "Bash(awk '/^```/{state=!state; if\\(state && NR>2831\\) {print \"open at\",NR}}' ./source/vite/index.md)",
+      "Bash(grep -n '```')",
+      "Bash(awk '/^`{3,}/{c[length\\($0\\)]++; print NR\": \"length\\($0\\)\" ticks\"}' ./source/vite/index.md)",
+      "Bash(awk '{print}')",
+      "Bash(awk '/^`{3,}/{n++; if\\(n%2==1\\) last_open=NR; else {if\\(NR-last_open>200\\) print \"LONG block: \"last_open\"-\"NR}}' ./source/vite/index.md)",
+      "Bash(node *)",
+      "Bash(git checkout *)",
+      "Bash(pnpm add *)",
+      "Bash(echo \"exit=$?\")"
     ]
   }
 }

@@ -23,9 +23,12 @@ export default defineConfig({
     // 主题级选项
     logo: 'http://49.235.131.245/blog/images/logo.jpg',
     nav: [
-      { text: '导航一', link: 'https://github.com/HRS-1998/' },
-      { text: '导航二', link: 'https://github.com/HRS-1998/' },
-      { text: '导航三', link: 'https://github.com/HRS-1998/' },
+      {
+        text: '阮一峰博客',
+        link: 'https://www.ruanyifeng.com/blog/index.html',
+      },
+      { text: '算法', link: 'https://algo.itcharge.cn/' },
+      { text: '组件库', link: 'http://49.235.131.245/dart' },
     ],
 
     sidebar: [
