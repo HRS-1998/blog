@@ -28,7 +28,11 @@
       "Bash(rmdir docs/src/pages/language/css/images)",
       "Bash(git rm *)",
       "Bash(awk '/^```/{f=!f;next} !f && /<[a-zA-Z]/' *.md)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(sed -i 's|\\\\.\\\\./images/ct-|http://49.235.131.245/blog/images/ct-|g' \"ct/知识库/ecma5兼容.md\" \"ct/微信公众号/微信公共页面解决方案.md\" \"ct/最佳实践/移动h5支付流程.md\")",
+      "Bash(rm -rf ct/images)",
+      "Bash(rtk curl *)",
+      "Bash(rtk playwright *)"
     ]
   }
 }
