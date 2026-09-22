@@ -1,91 +1,49 @@
-### 常见 14 种前端设计模式
+# 前端设计模式
 
-==每天写一个，加油！==
+面试向的设计模式笔记：覆盖 14 种前端最常见的 GoF 设计模式，每种模式统一按"一句话定义 → 解决什么问题 → 结构说明 → 原生 JS 实现 → 前端中的应用 → 优缺点与对比"展开，重点放在前端框架/工程中的真实落点（Vue、React、Redux、axios 里都能找到它们的影子），而不是教科书式的 UML。建议先看每篇的定义与"前端中的应用"，面试前再过一遍"优缺点与对比"里的模式辨析。
 
-1. 单例模式
+==14 种模式全部完成，常读常新！==
 
-```js
-//定义 保证一个类只有一个实例，并提供一个全局访问点。例如window
-//示例一个简单的单例
-function Singleton() {
-  this.name = "Singleton";
-  this.instance = null;
-}
-Singleton.prototype.getInstance = function () {
-  if (!this.instance) {
-    this.instance = new Singleton();
-  }
-  return this.instance;
-};
-let s1 = Singleton.getInstance();
-let s2 = Singleton.getInstance();
-console.log(s1 === s2); // true
-```
+## 总览
 
-```js
-//一个比较好的单例  遵循的单一职责
-var CreateDiv = (function () {
-  this.innerHtml = html;
-  this.init();
-})();
-CreateDiv.prototype.init = function () {
-  var div = document.createElement("div");
-  div.innerHTML = this.innerHtml;
-  document.body.appendChild(div);
-};
-var ProxySingletonCreateDiv = (function (html) {
-  var instance;
-  return function () {
-    if (!instance) {
-      instance = new CreateDiv(html);
-    }
-    return instance;
-  };
-})();
-const div1 = ProxySingletonCreateDiv("div1");
-const div2 = ProxySingletonCreateDiv("div2");
-console.log(div1 === div2); // true
-```
+| 模式 | 一句话定义 | 典型前端场景 |
+| --- | --- | --- |
+| [单例模式](./01-单例模式.md) | 保证一个类只有一个实例，并提供一个访问它的全局访问点 | 全局弹窗/Loading、Pinia store、ES Module |
+| [策略模式](./02-策略模式.md) | 定义一系列算法，把它们一个个封装起来，并且使它们可以互相替换 | 表单校验、动画缓动、消除 if-else |
+| [代理模式](./03-代理模式.md) | 为一个对象提供一个代用品或占位符，以便控制对它的访问 | 图片懒加载、Vue3 响应式、防抖节流 |
+| [迭代器模式](./04-迭代器模式.md) | 提供一种方法顺序访问一个聚合对象中的各个元素，而不暴露该对象的内部表示 | for...of、Generator、NodeList |
+| [发布订阅模式](./05-发布订阅模式.md) | 定义对象间的一对多依赖，状态改变时所有依赖对象都得到通知并自动更新 | EventBus、mitt、addEventListener |
+| [中介者模式](./06-中介者模式.md) | 用一个中介对象封装一系列对象的交互，使各对象不需要显式相互引用 | Redux/Vuex store、antd Form |
+| [状态模式](./07-状态模式.md) | 允许对象在内部状态改变时改变它的行为，对象看起来像是修改了它的类 | Promise 状态机、订单流转、组件三态 |
+| [命令模式](./08-命令模式.md) | 将一个请求封装成一个对象，从而可以对请求进行参数化、排队、记录、撤销 | 撤销/重做、宏命令、redux action |
+| [组合模式](./09-组合模式.md) | 将对象组合成树形结构表示"部分-整体"层次，客户端对单个对象和组合对象的使用具有一致性 | DOM 树、组件树、递归组件 |
+| [模板方法模式](./10-模板方法模式.md) | 父类定义算法骨架，某些步骤延迟到子类实现，子类不改变算法结构即可重定义某些步骤 | 生命周期钩子、脚手架流程 |
+| [享元模式](./11-享元模式.md) | 运用共享技术支持大量细粒度对象复用——相同的部分共享，不同的部分用时再传 | 虚拟列表、对象池、连接池 |
+| [职责链模式](./12-职责链模式.md) | 多个对象都有机会处理请求，连成一条链沿链传递，直到有一个对象处理它为止 | axios 拦截器、redux 中间件、事件冒泡 |
+| [装饰者模式](./13-装饰者模式.md) | 不改变原对象的前提下动态添加职责，装饰器与本体接口一致、层层包裹 | HOC、TS 装饰器、高阶函数 |
+| [适配器模式](./14-适配器模式.md) | 将一个类的接口转换成客户希望的另一个接口，使接口不兼容的类可以一起工作 | 接口数据适配层、axios transform |
 
-```js
-//惰性单例：只有在需要时才创建，它是单例模式的一个重要点
-//通用惰性单例
-var getSingle = function (fn) {
-  var result;
-  return function () {
-    return result || (result = fn.apply(this, arguments));
-  };
-};
-//使用
-var createIframe = getSingle(function () {
-  var iframe = document.createElement("iframe");
-  iframe.src = url;
-  document.body.appendChild(iframe);
-  return iframe;
-});
-//调用
-createIframe("http://www.baidu.com");
-createIframe("http://www.sina.com.cn"); //只创建了一次iframe
-```
+## 按分类速查
 
-2. 策略模式
+**创建型**
 
-```js
-// 将算法和实现解耦
-function A(salary) {
-  return salary * 0.8;
-}
-function B(salary) {
-  return salary * 0.9;
-}
-function C(salary) {
-  return salary * 1.1;
-}
-function calculateSalary(func, salary) {
-  return func(salary);
-}
-//使用
-calculateSalary(A, 10000); // 8000
+- [单例模式](./01-单例模式.md)
 
-//这里有个策略模式的应用场景，结合缓存算法实现动画，仔细的按照书看一看
-```
+**结构型**
+
+- [代理模式](./03-代理模式.md)
+- [装饰者模式](./13-装饰者模式.md)
+- [适配器模式](./14-适配器模式.md)
+- [组合模式](./09-组合模式.md)
+- [享元模式](./11-享元模式.md)
+
+**行为型**
+
+- [策略模式](./02-策略模式.md)
+- [迭代器模式](./04-迭代器模式.md)
+- [发布订阅模式](./05-发布订阅模式.md)
+- [中介者模式](./06-中介者模式.md)
+- [状态模式](./07-状态模式.md)
+- [命令模式](./08-命令模式.md)
+- [模板方法模式](./10-模板方法模式.md)
+- [职责链模式](./12-职责链模式.md)
