@@ -46,7 +46,31 @@
       "Bash(git checkout *)",
       "Bash(pnpm add *)",
       "Bash(echo \"exit=$?\")",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "Bash(grep -E \"^#{1,3} |^\\\\- \\\\[\")",
+      "Bash(cat *)",
+      "Bash(awk '/^```/{c++} END{print \"fence-lines:\", c, \"balanced:\", \\(c%2==0 ? \"YES\" : \"NO\"\\)}' 03-html-dom.md)",
+      "Bash(awk '/^```/{inblock=!inblock; next} inblock{next} /^\\\\s*[0-9]+\\\\.[^ \\\\t]/{print \"BAD-OLIST:\" FNR \": \" $0}' 03-html-dom.md)",
+      "Bash(awk '/^```/{inblock=!inblock; next} inblock{next} /\\\\{\\\\{|\\\\}\\\\}/{print \"BAD-MUSTACHE:\" FNR}' 03-html-dom.md)",
+      "Bash(awk 'match\\($0, /^[ \\\\t]*```/\\) {c++; if \\(c % 2 == 1\\) opens++} END {printf \"fence-lines=%d pairs=%d balanced=%s\\\\n\", c, c/2, \\(c%2==0 ? \"YES\" : \"NO\"\\)}' 03-html-dom.md)",
+      "Bash(awk 'match\\($0, /^[ \\\\t]*```/\\) {inblock = !inblock; next} inblock {next} /Q：/ {next} /^\\\\s*[0-9]+\\\\.[^ \\\\t/]/ {print \"BAD-OLIST line \" FNR \": \" $0}' 03-html-dom.md)",
+      "Bash(awk 'match\\($0, /^[ \\\\t]*```/\\) {inblock = !inblock; next} inblock {next} /\\\\{\\\\{|\\\\}\\\\}/ {print \"BAD-MUSTACHE line \" FNR}' 03-html-dom.md)",
+      "Bash(awk 'match\\($0, /^[ \\\\t]*```/\\) {inblock = !inblock; next} inblock {next} /^    [^ \\\\t*|#-]/ && !/^$/ {print \"INDENT-CODE? line \" FNR \": \" substr\\($0,1,50\\)}' 03-html-dom.md)",
+      "Bash(awk 'prev !~ /^$/ && /^## Q：/ {print \"NO-BLANK-BEFORE line \" FNR} {prev = $0} END {print \"headings check done\"}' 03-html-dom.md)",
+      "Bash(python *)",
+      "Bash(python3 *)",
+      "Bash(cd D:\\\\githrs\\\\blog\\\\docs\\\\src\\\\pages\\\\interview\\\\ms\\\\题库 *)",
+      "Bash(awk '/^```/{f=!f; next} f{next} /^#/{h[NR]=$0} END{bad=0; for\\(n in h\\){ if\\(n>1\\){} } n=asorti\\(h\\)}' 05-browser.md)",
+      "Bash(awk 'BEGIN{while\\(\\(getline line < \"05-browser.md\"\\)>0\\){c++; L[c]=line}} /x/{ }' 05-browser.md)",
+      "Bash(awk '/^```/{infence=!infence;next} infence{next} {lines[NR]=$0} END{n=0; for\\(i=1;i<=NR;i++\\) if\\(lines[i] ~ /^#/\\) n=i; for\\(i=2;i<=NR;i++\\){ if\\(lines[i] ~ /^#/\\){ if\\(lines[i-1] != \"\" \\) print \"BLANK_BEFORE_MISSING at \" i; if\\(i<NR && lines[i+1] != \"\" && lines[i+1] !~ /^#/\\) print \"BLANK_AFTER_MISSING at \" i } } print \"headings_check_done, last_heading_line=\" n \", total=\" NR}' 05-browser.md)",
+      "Bash(awk 'NR>1 && prev ~ /^## / && $0 !~ /^[[:space:]]*$/ { print \"NO-BLANK-AFTER-HEADING at \"NR } { prev=$0 } END { print \"OK-after-headings\" }' 06-http.md)",
+      "Bash(awk '/^```/ { f=!f; next } f && /\\\\{\\\\{|\\\\}\\\\}/ { print \"mustache-inside-fence \"NR\" \\(allowed\\)\" }' 06-http.md)",
+      "Bash(awk '{n=gsub\\(/\\\\*\\\\*/,\"**\"\\); if\\(n%2==1\\) print \"ODD_BOLD line \" NR \": \" $0}' 05-browser.md)",
+      "Bash(sed -n '1,4p' 05-browser.md)",
+      "Bash(cygpath -w /tmp)",
+      "Bash(awk '/^```/{infence=!infence;next} !infence && /^#/ && NR<1070 {if \\(getline nxt <= 0\\) next; if \\(nxt != \"\"\\) print \"NO-BLANK-AFTER line \" NR \": \" $0}' 09-build.md)",
+      "Bash(awk '/^```/{f=!f;next} !f && /<[a-z]+[ >\\\\/]/ && $0 !~ /`[^`]*<[^`]*>/ {print NR\": \"$0}' \"D:\\\\githrs\\\\blog\\\\docs\\\\src\\\\pages\\\\interview\\\\ms\\\\题库\\\\14-h5.md\")",
+      "Bash(awk 'NR>1 && /^#/ {if \\(prev != \"\" \\) print \"NO-BLANK-BEFORE line \" NR\": \"$0; if \\(getline nxt > 0 && nxt !~ /^$/\\) {if \\(nxt != \"\"\\) print \"NO-BLANK-AFTER line \" NR\": \"$0} else {}} {prev=$0}' \"D:\\\\githrs\\\\blog\\\\docs\\\\src\\\\pages\\\\interview\\\\ms\\\\题库\\\\14-h5.md\")"
     ]
   }
 }

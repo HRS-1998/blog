@@ -160,6 +160,8 @@ export default defineConfig({
               { text: '小程序', link: '/pages/interview/ms/题库/11-miniprogram.md' },
               { text: '跨端', link: '/pages/interview/ms/题库/12-client.md' },
               { text: 'Node', link: '/pages/interview/ms/题库/13-node.md' },
+              { text: 'H5', link: '/pages/interview/ms/题库/14-h5.md' },
+              { text: 'Python', link: '/pages/interview/ms/题库/15-python.md' },
             ],
             collapsed: true,
           },
