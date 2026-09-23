@@ -1,0 +1,1064 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FD 移动端 UI 规范 v1.0 · 总览</title>
+  <link rel="stylesheet" href="assets/mobile-ui.css" />
+  <style>
+    /* —— 总览文档页样式（仅本页使用；规范本体见 assets/mobile-ui.css） —— */
+    :root {
+      --doc-ink: #182430;
+      --doc-paper: #f2f4f8;
+      --doc-card: #ffffff;
+      --doc-line: #dfe4ec;
+      --doc-accent: #1677ff;
+      --doc-soft: #eef2fb;
+      --doc-mono: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Courier New", monospace;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    body {
+      background:
+        linear-gradient(rgba(0, 82, 217, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 82, 217, 0.03) 1px, transparent 1px),
+        var(--doc-paper);
+      background-size: 28px 28px, 28px 28px, auto;
+      color: var(--doc-ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+        "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+    :is(a, button, [data-open]):focus-visible {
+      outline: 2px solid var(--doc-accent);
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+
+    /* 外壳：≥1280px 出现左侧粘性章节导航 */
+    .doc-shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: 188px minmax(0, 1fr);
+      gap: 40px;
+    }
+    .doc {
+      min-width: 0;
+      padding: 48px 0 80px;
+    }
+    .doc-side {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+      border-right: 1px solid var(--doc-line);
+    }
+    .doc-side::before {
+      content: "FD · MOBILE · UI";
+      font-family: var(--doc-mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      color: #9aa6b8;
+      margin-bottom: 14px;
+      padding-right: 24px;
+    }
+    .doc-side a {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 7px 24px 7px 0;
+      font-size: 13px;
+      color: #5a6b80;
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    .doc-side a b {
+      font-family: var(--doc-mono);
+      font-size: 11px;
+      font-weight: 400;
+      color: #9aa6b8;
+    }
+    .doc-side a:hover {
+      color: var(--doc-ink);
+    }
+    .doc-side a.is-on {
+      color: var(--doc-accent);
+      border-left-color: var(--doc-accent);
+    }
+    .doc-side a.is-on b {
+      color: var(--doc-accent);
+    }
+    @media (max-width: 1279px) {
+      .doc-shell {
+        grid-template-columns: minmax(0, 1fr);
+      }
+      .doc-side {
+        display: none;
+      }
+    }
+
+    /* —— Hero：eyebrow / 标题 / 立场 / 基因条 —— */
+    .doc-hero {
+      padding-top: 8px;
+    }
+    .doc-eyebrow {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      font-family: var(--doc-mono);
+      font-size: 12px;
+      color: #5a6b80;
+    }
+    .doc-eyebrow b {
+      color: var(--doc-accent);
+      font-weight: 600;
+      letter-spacing: 0.12em;
+    }
+    .doc-hero h1 {
+      margin-top: 14px;
+      font-size: 34px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      line-height: 1.25;
+    }
+    .doc-hero h1 .doc-ver {
+      display: inline-block;
+      vertical-align: 6px;
+      margin-left: 12px;
+      padding: 2px 10px;
+      font-family: var(--doc-mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--doc-accent);
+      background: var(--doc-soft);
+      border: 1px solid #d4e0f6;
+      border-radius: 999px;
+    }
+    .doc-hero > p {
+      margin-top: 14px;
+      max-width: 760px;
+      color: #46586e;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+    .doc-hero p code {
+      font-family: var(--doc-mono);
+      font-size: 13px;
+      background: var(--doc-soft);
+      color: var(--doc-accent);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+
+    /* 签名元素：规范基因条（12 个色彩令牌拼成的连续色带，点击复制 hex） */
+    .gene {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      height: 48px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 0 rgba(24, 36, 48, 0.04), 0 8px 24px rgba(15, 23, 42, 0.07);
+    }
+    .gene__seg {
+      position: relative;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      background: var(--c);
+      box-shadow: inset 0 0 0 1px rgba(24, 36, 48, 0.08);
+      animation: seg-in 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) both;
+      animation-delay: calc(var(--i) * 55ms);
+      transform-origin: bottom;
+      transition: filter 0.15s ease;
+    }
+    @keyframes seg-in {
+      from {
+        transform: scaleY(0);
+      }
+    }
+    .gene__seg span {
+      position: absolute;
+      left: 50%;
+      bottom: calc(100% + 8px);
+      transform: translateX(-50%) translateY(4px);
+      white-space: nowrap;
+      font-family: var(--doc-mono);
+      font-size: 11px;
+      line-height: 1;
+      color: #fff;
+      background: #1c2733;
+      border-radius: 6px;
+      padding: 7px 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .gene__seg span i {
+      display: block;
+      font-style: normal;
+      color: #9db7e8;
+      margin-top: 4px;
+    }
+    .gene__seg:hover span,
+    .gene__seg:focus-visible span {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .gene__seg:hover,
+    .gene__seg:focus-visible {
+      z-index: 1;
+    }
+    .gene:hover .gene__seg:not(:hover):not(:focus-visible) {
+      filter: saturate(0.35) opacity(0.75);
+    }
+    .gene-cap {
+      margin-top: 10px;
+      font-family: var(--doc-mono);
+      font-size: 11px;
+      color: #8493a8;
+    }
+    @media (max-width: 680px) {
+      .gene {
+        grid-template-columns: repeat(6, 1fr);
+        height: 72px;
+      }
+      .gene__seg span {
+        bottom: auto;
+        top: calc(100% + 6px);
+      }
+      .gene-cap {
+        margin-bottom: 26px;
+      }
+    }
+
+    .doc-nav {
+      margin-top: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .doc-nav a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      height: 36px;
+      padding: 0 15px;
+      border-radius: 999px;
+      background: var(--doc-card);
+      border: 1px solid var(--doc-line);
+      font-size: 13px;
+      color: var(--doc-accent);
+      text-decoration: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .doc-nav a:hover {
+      border-color: var(--doc-accent);
+      box-shadow: 0 2px 8px rgba(0, 82, 217, 0.12);
+    }
+
+    /* —— 章节与面板 —— */
+    .doc-sec {
+      margin-top: 64px;
+    }
+    .doc-sec > h2 {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      font-size: 21px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .doc-sec > h2 .no {
+      font-family: var(--doc-mono);
+      font-style: normal;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--doc-accent);
+    }
+    .doc-sec > h2 small {
+      font-size: 12px;
+      font-weight: normal;
+      color: #8493a8;
+      margin-left: auto;
+      text-align: right;
+    }
+    .doc-sec > .sec-desc {
+      font-size: 13px;
+      color: #5a6b80;
+      margin-bottom: 18px;
+      max-width: 760px;
+      line-height: 1.7;
+    }
+    .doc-panel {
+      background: var(--doc-card);
+      border: 1px solid var(--doc-line);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 0 rgba(24, 36, 48, 0.03);
+    }
+    .doc-panel + .doc-panel {
+      margin-top: 12px;
+    }
+    .doc-panel h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 4px 0 12px;
+      color: var(--doc-ink);
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+    .row + .row {
+      margin-top: 14px;
+    }
+    .row-label {
+      width: 88px;
+      flex: none;
+      font-size: 12px;
+      color: #8493a8;
+    }
+    .row-row {
+      align-items: flex-start;
+    }
+
+    /* 色板 */
+    .swatch {
+      width: 132px;
+      border: 1px solid var(--doc-line);
+      border-radius: 8px;
+      overflow: hidden;
+      font-size: 12px;
+      background: var(--doc-card);
+    }
+    .swatch i {
+      display: block;
+      height: 44px;
+    }
+    .swatch b {
+      display: block;
+      padding: 6px 8px 0;
+      font-weight: 500;
+    }
+    .swatch span {
+      display: block;
+      padding: 0 8px 7px;
+      color: #5a6b80;
+      font-family: var(--doc-mono);
+      font-size: 11px;
+    }
+
+    /* 字阶标本 */
+    .type-spec > div {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      padding: 6px 0;
+      border-bottom: 1px dashed var(--doc-line);
+    }
+    .type-spec > div:last-child {
+      border-bottom: 0;
+    }
+    .type-spec .spec {
+      width: 190px;
+      flex: none;
+      font-size: 11px;
+      color: #5a6b80;
+      font-family: var(--doc-mono);
+    }
+
+    /* 间距刻度 */
+    .space-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #46586e;
+      margin-bottom: 6px;
+    }
+    .space-item i {
+      display: inline-block;
+      height: 12px;
+      border-radius: 2px;
+      background: var(--doc-accent);
+      opacity: 0.85;
+    }
+
+    /* 页面预览 */
+    .previews {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+    }
+    .preview-card {
+      background: var(--doc-card);
+      border: 1px solid var(--doc-line);
+      border-radius: 12px;
+      padding: 16px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .preview-card:hover {
+      border-color: #b9c8e4;
+      box-shadow: 0 6px 20px rgba(15, 23, 42, 0.07);
+    }
+    .preview-card h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .preview-card p {
+      font-size: 12px;
+      color: #5a6b80;
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+    .preview-card .frame {
+      position: relative;
+      width: 100%;
+      max-width: 358px;
+      height: 640px;
+      margin: 0 auto;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid var(--doc-line);
+      background: var(--m-bg-page);
+      box-shadow: 0 0 0 6px #171a20, 0 0 0 7px #3a3f48, 0 14px 34px rgba(15, 23, 42, 0.18);
+    }
+    .preview-card iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      pointer-events: none; /* 预览不拦截滚轮；悬停后可交互 */
+      display: block;
+    }
+    .preview-card .frame:hover iframe {
+      pointer-events: auto;
+    }
+    .preview-card .open {
+      margin-top: 16px;
+      display: inline-flex;
+    }
+
+    table.doc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      background: var(--doc-card);
+    }
+    .doc-table th,
+    .doc-table td {
+      text-align: left;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--doc-line);
+      vertical-align: top;
+      line-height: 1.6;
+    }
+    .doc-table tr:last-child td {
+      border-bottom: 0;
+    }
+    .doc-table tbody tr {
+      transition: background 0.12s ease;
+    }
+    .doc-table tbody tr:hover {
+      background: #f7f9fd;
+    }
+    .doc-table th {
+      font-family: var(--doc-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: #5a6b80;
+      background: #f6f8fb;
+      white-space: nowrap;
+    }
+    .doc-table code {
+      font-family: var(--doc-mono);
+      font-size: 12px;
+      background: var(--doc-soft);
+      color: var(--doc-accent);
+      padding: 1px 5px;
+      border-radius: 4px;
+    }
+    .doc-table a {
+      color: var(--doc-accent);
+    }
+
+    /* 问题表叙事：现状列降灰（旧世界）→ 方案列主色指示条（新世界） */
+    #issues-table td:nth-child(2) {
+      color: #6a7a8d;
+    }
+    #issues-table td:last-child {
+      box-shadow: inset 3px 0 0 rgba(0, 82, 217, 0.4);
+      background: linear-gradient(90deg, rgba(0, 82, 217, 0.045), transparent 26%);
+    }
+
+    .doc-footer {
+      margin-top: 72px;
+      padding-top: 20px;
+      border-top: 1px solid var(--doc-line);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+      font-family: var(--doc-mono);
+      font-size: 11px;
+      color: #8493a8;
+    }
+    .doc-footer a {
+      color: var(--doc-accent);
+      text-decoration: none;
+    }
+    .doc-footer a:hover {
+      text-decoration: underline;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+      .gene__seg {
+        animation: none;
+      }
+      .doc-table tbody tr,
+      .preview-card,
+      .doc-side a,
+      .gene__seg span {
+        transition: none;
+      }
+    }
+    @media (max-width: 640px) {
+      .doc-shell {
+        padding: 0 16px;
+      }
+      .doc {
+        padding-top: 28px;
+      }
+      .doc-hero h1 {
+        font-size: 26px;
+      }
+      .swatch {
+        width: calc(33.33% - 8px);
+      }
+      .row-label {
+        width: 100%;
+      }
+      .doc-sec > h2 small {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="doc-shell">
+    <nav class="doc-side" aria-label="章节导航">
+      <a href="#sec-issues"><b>01</b>现状问题</a>
+      <a href="#sec-matrix"><b>02</b>覆盖矩阵</a>
+      <a href="#sec-tokens"><b>03</b>设计令牌</a>
+      <a href="#sec-components"><b>04</b>组件皮肤</a>
+      <a href="#sec-pages"><b>05</b>页面 Demo</a>
+    </nav>
+    <div class="doc">
+    <!-- ============ 头部 ============ -->
+    <header class="doc-hero">
+      <p class="doc-eyebrow"><b>FD · MOBILE · UI</b><span>SPEC v1.0</span><span>2026-09</span><span>packages/mobile</span></p>
+      <h1>移动端 UI 规范<span class="doc-ver">v1.0</span></h1>
+      <p>
+        全站统一视觉规范、页面适配规则与交互体系。目标：解决导航错位、间距不规范、样式杂乱；
+        适配单手操作与轻量化使用场景；建立可移植的标准皮肤（本页组件即由
+        <a href="assets/mobile-ui.css" style="color: var(--doc-accent)">mobile-ui.css</a> 渲染）。
+      </p>
+      <!-- 签名元素：规范基因条 —— 12 个色彩令牌连续色带，点击复制 hex -->
+      <div class="gene" role="group" aria-label="色彩令牌条，点击复制色值">
+        <button class="gene__seg" style="--c: var(--m-primary); --i: 0" data-hex="#1677ff" aria-label="复制 #1677ff"><span>primary<i>#1677ff</i></span></button>
+        <button class="gene__seg" style="--c: var(--m-primary-active); --i: 1" data-hex="#0958d9" aria-label="复制 #0958d9"><span>active<i>#0958d9</i></span></button>
+        <button class="gene__seg" style="--c: var(--m-primary-weak); --i: 2" data-hex="#e6f4ff" aria-label="复制 #e6f4ff"><span>weak<i>#e6f4ff</i></span></button>
+        <button class="gene__seg" style="--c: var(--m-success); --i: 3" data-hex="#2ba471" aria-label="复制 #2ba471"><span>success<i>#2ba471</i></span></button>
+        <button class="gene__seg" style="--c: var(--m-warning); --i: 4" data-hex="#e37318" aria-label="复制 #e37318"><span>warning<i>#e37318</i></span></button>
+        <button class="gene__seg" style="--c: var(--m-danger); --i: 5" data-hex="#d54941" aria-label="复制 #d54941"><span>danger<i>#d54941</i></span></button>
+        <button class="gene__seg" style="--c: var(--m-text-1); --i: 6" data-hex="#323233" aria-label="复制 #323233"><span>text-1<i>#323233</i></span></button>
+        <button class="gene__seg" style="--c: var(--m-text-2); --i: 7" data-hex="#646566" aria-label="复制 #646566"><span>text-2<i>#646566</i></span></button>
+        <button class="gene__seg" style="--c: var(--m-text-3); --i: 8" data-hex="#969799" aria-label="复制 #969799"><span>text-3<i>#969799</i></span></button>
+        <button class="gene__seg" style="--c: var(--m-text-4); --i: 9" data-hex="#c8c9cc" aria-label="复制 #c8c9cc"><span>text-4<i>#c8c9cc</i></span></button>
+        <button class="gene__seg" style="--c: var(--m-bg-page); --i: 10" data-hex="#f7f8fa" aria-label="复制 #f7f8fa"><span>bg-page<i>#f7f8fa</i></span></button>
+        <button class="gene__seg" style="--c: var(--m-fill); --i: 11" data-hex="#f2f3f5" aria-label="复制 #f2f3f5"><span>fill<i>#f2f3f5</i></span></button>
+      </div>
+      <p class="gene-cap">↑ 色彩令牌全谱 · hover 查看名称 · 点击复制 hex（唯一定义处 mobile-ui.css §1）</p>
+      <nav class="doc-nav" aria-label="页面入口">
+        <a href="pages/login.html" target="_blank">登录页</a>
+        <a href="pages/guide.html" target="_blank">导航页</a>
+        <a href="pages/dashboard.html" target="_blank">仪表盘页 ★</a>
+        <a href="pages/filter.html" target="_blank">筛选参考</a>
+        <a href="pages/error.html" target="_blank">错误页</a>
+        <a href="pages/mine.html" target="_blank">我的</a>
+        <a href="README.md" target="_blank">完整规范文档</a>
+      </nav>
+    </header>
+
+    <!-- ============ 现状问题 → 规范方案 ============ -->
+    <section class="doc-sec" id="sec-issues">
+      <h2><i class="no">01</i>现状问题与规范方案<small>源码实证 → 整改对照</small></h2>
+      <p class="sec-desc">以下问题均取自当前 mobile 源码；demo 页面为整改后的目标形态。</p>
+      <div class="doc-panel" style="padding: 0; overflow-x: auto">
+        <table class="doc-table" id="issues-table">
+          <thead>
+            <tr>
+              <th style="width: 46px">#</th>
+              <th style="width: 30%">现状问题</th>
+              <th style="width: 26%">源码位置</th>
+              <th>规范方案</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>主色不统一：tabbar 用 <code>#0052d9</code>，悬浮球用 <code>#1e67e7</code> 且透明度 0.6</td>
+              <td>Layout.vue:9 / FloatBtn.vue:130</td>
+              <td>全站唯一主色 <code>--m-primary: #1677ff</code>（支付宝蓝，旧 #0052d9/#1e67e7 一并废弃）；悬浮球整体废弃，改为顶栏「菜单」固定入口</td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>tabbar 动态插入第 4 个模块 tab，名称过长挤压、tab 数量不定导致导航错位</td>
+              <td>Layout.vue:17-31</td>
+              <td>tabbar 恒定 2 项（导航/我的，无首页——登录直达导航页）；模块页隐藏 tabbar，由顶栏 <b>返回 | 标题 | 筛选/菜单</b> 承担导航</td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>间距随意：分组标题 <code>padding 0 8px</code>、用户卡 <code>margin 0 20px / padding 24px 10px</code>、按钮内 <code>margin 5px</code></td>
+              <td>guide/index.vue:181 / mine/index.vue:108,112 / realTemplate.vue:188</td>
+              <td>4px 基数刻度 4/8/12/16/20/24/32；页面水平基准 16px、卡片间距 12px、单元格内边距 16px</td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>图表页进入即全屏筛选弹层（position:top 占满 100%），遮挡全部内容</td>
+              <td>chart/searchPopup.vue:2-9</td>
+              <td>筛选改为<b>底部抽屉</b>（≤76% 高、顶部圆角 16、拖拽条），操作按钮吸底位于拇指区</td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>菜单入口为可拖拽悬浮球，位置不定、遮挡内容、拖拽与滚动易误触</td>
+              <td>FloatBtn.vue 全文件</td>
+              <td>顶栏固定「菜单」按钮 + 左侧抽屉（82% 宽、标题左对齐、一级分组文件夹图标、激活项主色弱底 + 左指示条）</td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>高度魔法数混用：顶栏 40 / tabbar 50 / 宫格 72 / 操作区 76</td>
+              <td>variables.scss:5-6 / guide:190 / searchPopup:256</td>
+              <td>统一为 token：<code>--m-header-h 44</code> / <code>--m-tabbar-h 50</code> / <code>--m-touch 44</code> / 单元格 48 / <code>--m-btn-h 40</code> / <code>--m-input-h 36</code></td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>弱色/背景色硬编码散落各组件：<code>#f2f3ff</code> <code>#fafafa</code> <code>#f2f3ff</code></td>
+              <td>variables.scss:2,7 / guide:204</td>
+              <td>token 化：<code>--m-primary-weak</code> / 卡片统一 <code>--m-bg-card</code>；新增样式禁止颜色字面量</td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td>图表容器样式各页自写，标题背景 <code>#fafafa</code> 与白卡片混排</td>
+              <td>chart/dashBoard 各页</td>
+              <td>图表卡片统一：白卡 + 圆角 10 + 内边距 16 + 标题行（图标主色 + 14px 加粗）</td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td>图标不统一：同一页面 <code>van-icon</code> 与 <code>SvgIcon</code> 混用，尺寸散值（<code>0.2rem</code>）、图标私设色值</td>
+              <td>ChartMenuItem.vue:38-51 / DashboardChartItem.vue:7 / FloatBtn.vue:130</td>
+              <td>图标二分规范：基础 UI 图标 van-icon、业务图标 SvgIcon；尺寸刻度 14/16/20/22；颜色只继承 token（见 README §3.5）</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============ 功能覆盖矩阵 ============ -->
+    <section class="doc-sec" id="sec-matrix">
+      <h2><i class="no">02</i>功能覆盖矩阵<small>以路由表为事实源逐项对账</small></h2>
+      <p class="sec-desc">
+        完整性不靠感觉：以 <code style="font-family: Consolas, monospace">packages/mobile/src/router/index.ts + router/common.ts</code>
+        全量路由为唯一事实源，每条路由、每个 common 筛选组件、每项横切能力都必须在下表登记覆盖方式；
+        <b>新增路由未登记 = 覆盖缺口</b>，评审时以此表勾稽。
+      </p>
+      <div class="doc-panel" style="padding: 0; overflow-x: auto">
+        <table class="doc-table">
+          <thead>
+            <tr>
+              <th style="width: 24%">路由（源码事实）</th>
+              <th style="width: 22%">页面组件</th>
+              <th>Demo 覆盖</th>
+              <th style="width: 56px">状态</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>/login</code>（非生产）</td><td>Login 登录页</td><td><a href="pages/login.html" target="_blank">pages/login.html</a></td><td>✅</td></tr>
+            <tr><td><code>/guide</code></td><td>Guide 导航页</td><td><a href="pages/guide.html" target="_blank">pages/guide.html</a></td><td>✅</td></tr>
+            <tr><td><code>/mine</code></td><td>Mine 我的</td><td><a href="pages/mine.html" target="_blank">pages/mine.html</a></td><td>✅</td></tr>
+            <tr><td><code>chart/home</code></td><td>chartHome 图表列表宿主</td><td>guide.html 宫格即「入口聚合」宿主形态</td><td>✅ 范式</td></tr>
+            <tr><td><code>chart/template/:id</code></td><td>ChartTemplate 图表页</td><td><a href="pages/dashboard.html" target="_blank">同 pages/dashboard.html 范式</a>（单图表卡三要素均在仪表盘页演示）</td><td>✅ 范式</td></tr>
+            <tr><td><code>chart/model/:id</code></td><td>ChartModel 模板分析（同组件 isTemplate 分支）</td><td>同 dashboard.html 范式</td><td>✅ 范式</td></tr>
+            <tr><td><code>dashBoard/template/:id</code></td><td>DashBoard 仪表盘</td><td><a href="pages/dashboard.html" target="_blank">pages/dashboard.html</a>（进入默认打开菜单 + 图表卡「请查询」占位 + 进度条 + 多卡片 + 停止全部）</td><td>✅</td></tr>
+            <tr><td><code>dashBoard/square/:id</code></td><td>数据广场（同组件 scene 变体）</td><td>同 dashboard.html 范式</td><td>✅ 范式</td></tr>
+            <tr><td><code>/errorPage</code></td><td>错误页（无顶栏）</td><td><a href="pages/error.html" target="_blank">pages/error.html</a>「无顶栏」形态</td><td>✅</td></tr>
+            <tr><td><code>/errorPageHasHeader/index</code></td><td>错误页（带 Layout）</td><td>同页「带顶栏」形态（可切换）</td><td>✅</td></tr>
+            <tr><td>动态 <code>nav.url</code> 三级模块</td><td>Menu 明细数据模块</td><td>规则条目覆盖：表格 + 加载更多见 README §4.1（demo 未演示）</td><td>📄 规则</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="doc-panel row-row" style="margin-top: 12px">
+        <div style="flex: 1; min-width: 340px">
+          <h3>筛选组件对账（src/components/common/ → demo 控件范式）</h3>
+          <table class="doc-table">
+            <tbody>
+              <tr><td style="width: 46%"><code>DateScope / DateTimeScope / MonthScope / YearScope</code></td><td>日期字段 → 底部滚轮选择器（年/月/日三列滚轮、确认回填/取消不回填）· dashboard 筛选面板 + filter.html 日期范围卡</td></tr>
+              <tr><td><code>DigitalRange</code></td><td>数字区间双输入 · 规范保留（demo 未演示）</td></tr>
+              <tr><td><code>BooleanChoose</code></td><td><code>.m-switch</code> 开关 · 规范保留（demo 未演示）</td></tr>
+              <tr><td><code>SingleSelectBtn / Template</code></td><td>下拉字段 + 单选弹层 · 图表卡字段下拉（dashboard）</td></tr>
+              <tr><td><code>MultiSelectBtn / Template / ChannelLabel(M/IdM) 系</code></td><td>下拉字段 + 多选弹层 · dashboard 卡2 字段多选</td></tr>
+              <tr><td><code>MultiCascader</code></td><td>级联两行 chips（二级联动）· 规范保留（demo 未演示）</td></tr>
+              <tr><td><code>TextS / TextAreaM / NumberS / DateS / MonthS / YearS</code></td><td><code>.m-input</code> 填充输入 · 抽屉关键词 / 目录搜索</td></tr>
+              <tr><td><code>GroupS</code></td><td>导航页项目组下拉独立行（顶栏下一行·居中，底部单选弹层）· guide.html</td></tr>
+              <tr><td><code>Wrapper</code></td><td>demo 演示为筛选底部面板 · dashboard</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="flex: 1; min-width: 340px">
+          <h3>横切能力对账</h3>
+          <table class="doc-table">
+            <tbody>
+              <tr><td style="width: 46%"><code>FullScreen</code> 图表全屏</td><td>图表卡全屏按钮 · 仅 chart（仪表盘无全屏）</td></tr>
+              <tr><td><code>QuickFieldSelect</code> 快捷字段</td><td>图表卡标题下选择字段下拉 · chart / dashboard</td></tr>
+              <tr><td>单图操作（DashboardChartItem）</td><td>右上角圆形图标：暂停 stop / 重试 play · dashboard</td></tr>
+              <tr><td><code>loadMore / virtualScroll</code></td><td>规则见 README §4.1（demo 未演示）</td></tr>
+              <tr><td><code>useDdShare</code> 分享</td><td>error.html 顶栏；容器原生能力见 README</td></tr>
+              <tr><td><code>useDingTalkBackButton</code></td><td>README 适配规则（返回键→路由回退）</td></tr>
+              <tr><td><code>useIosKeyboardDeal</code></td><td>README 适配规则（16px 输入 + 吸底避让）</td></tr>
+              <tr><td><code>NoviceGuide</code> 新手引导</td><td>README 交互规则（token 化引导浮层）</td></tr>
+              <tr><td>loading / error / empty 三态</td><td>组件库（本页）+ dashboard 骨架卡 + error.html</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 设计令牌 ============ -->
+    <section class="doc-sec" id="sec-tokens">
+      <h2><i class="no">03</i>设计令牌<small>mobile-ui.css §1 · 全站唯一定义处</small></h2>
+
+      <div class="doc-panel">
+        <h3>色彩 · 品牌与功能</h3>
+        <div class="row">
+          <div class="swatch"><i style="background: var(--m-primary)"></i><b>primary 主色</b><span>#1677ff</span></div>
+          <div class="swatch"><i style="background: var(--m-primary-active)"></i><b>active 按压</b><span>#0958d9</span></div>
+          <div class="swatch"><i style="background: var(--m-primary-weak); border-bottom: 1px solid var(--m-border)"></i><b>weak 主色弱底</b><span>#e6f4ff</span></div>
+          <div class="swatch"><i style="background: var(--m-success)"></i><b>success</b><span>#2ba471</span></div>
+          <div class="swatch"><i style="background: var(--m-warning)"></i><b>warning</b><span>#e37318</span></div>
+          <div class="swatch"><i style="background: var(--m-danger)"></i><b>danger</b><span>#d54941</span></div>
+        </div>
+        <h3 style="margin-top: 20px">色彩 · 文本与背景（四级文本 + 三级面）</h3>
+        <div class="row">
+          <div class="swatch"><i style="background: var(--m-text-1)"></i><b>text-1 主文本</b><span>#323233</span></div>
+          <div class="swatch"><i style="background: var(--m-text-2)"></i><b>text-2 次文本</b><span>#646566</span></div>
+          <div class="swatch"><i style="background: var(--m-text-3)"></i><b>text-3 辅助</b><span>#969799</span></div>
+          <div class="swatch"><i style="background: var(--m-text-4)"></i><b>text-4 禁用</b><span>#c8c9cc</span></div>
+          <div class="swatch"><i style="background: var(--m-bg-page); border-bottom: 1px solid var(--m-border)"></i><b>bg-page 页面底</b><span>#f7f8fa</span></div>
+          <div class="swatch"><i style="background: var(--m-fill); border-bottom: 1px solid var(--m-border)"></i><b>fill 填充底</b><span>#f2f3f5</span></div>
+        </div>
+      </div>
+
+      <div class="doc-panel">
+        <h3>字阶与行高</h3>
+        <div class="type-spec">
+          <div><span class="spec">--m-fz-20 · bold · 大标题/KPI</span><span style="font-size: 20px; font-weight: 600">数据随手掌握</span></div>
+          <div><span class="spec">--m-fz-16 · bold · 顶栏/抽屉标题</span><span style="font-size: 16px; font-weight: 600">销售分析</span></div>
+          <div><span class="spec">--m-fz-16 · medium · 按钮/输入</span><span style="font-size: 16px; font-weight: 500">查 询</span></div>
+          <div><span class="spec">--m-fz-14 · normal · 正文/单元格</span><span style="font-size: 14px">渠道 GMV 对比，短视频渠道最高</span></div>
+          <div><span class="spec">--m-fz-12 · normal · 次文本/说明</span><span style="font-size: 12px; color: var(--m-text-3)">账号：chenzhe · 当前项目组</span></div>
+          <div><span class="spec">--m-fz-11 · medium · tabbar 标签</span><span style="font-size: 11px; color: var(--m-text-2)">导航 / 我的</span></div>
+        </div>
+      </div>
+
+      <div class="doc-panel row-row">
+        <div style="flex: 1; min-width: 260px">
+          <h3>间距刻度（4px 基数）</h3>
+          <div class="space-item"><i style="width: 4px"></i>space-1 · 4</div>
+          <div class="space-item"><i style="width: 8px"></i>space-2 · 8（组件内间隙）</div>
+          <div class="space-item"><i style="width: 12px"></i>space-3 · 12（卡片间距/区块内）</div>
+          <div class="space-item"><i style="width: 16px"></i>space-4 · 16（页边/单元格基准）</div>
+          <div class="space-item"><i style="width: 20px"></i>space-5 · 20</div>
+          <div class="space-item"><i style="width: 24px"></i>space-6 · 24</div>
+          <div class="space-item"><i style="width: 32px"></i>space-8 · 32（分组之间）</div>
+        </div>
+        <div style="flex: 1; min-width: 260px">
+          <h3>圆角 / 尺寸 / 层级</h3>
+          <div class="row" style="margin-bottom: 14px">
+            <span style="width: 56px; height: 40px; background: var(--m-primary-weak); border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; color: var(--m-primary)">6</span>
+            <span style="width: 64px; height: 40px; background: var(--m-primary-weak); border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; color: var(--m-primary)">10</span>
+            <span style="width: 72px; height: 40px; background: var(--m-primary-weak); border-radius: 16px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; color: var(--m-primary)">16</span>
+            <span style="font-size: 12px; color: var(--m-text-3)">sm 控件 / md 卡片按钮 / lg 抽屉</span>
+          </div>
+          <table class="doc-table">
+            <tbody>
+              <tr><td><code>--m-header-h</code></td><td>44 顶栏（原 40 统一）</td></tr>
+              <tr><td><code>--m-tabbar-h</code></td><td>50 底部主导航</td></tr>
+              <tr><td><code>--m-touch</code></td><td>44 最小触控命中</td></tr>
+              <tr><td><code>--m-z-*</code></td><td>100 顶栏 / 110 tabbar / 200 遮罩 / 210 弹层 / 300 toast</td></tr>
+              <tr><td><code>--m-dur</code></td><td>200ms · ease-out（reduced-motion 降级）</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 组件预览 ============ -->
+    <section class="doc-sec" id="sec-components">
+      <h2><i class="no">04</i>组件皮肤<small>以下组件全部来自 mobile-ui.css，可直接移植</small></h2>
+
+      <div class="doc-panel">
+        <h3>按钮</h3>
+        <div class="row">
+          <button class="m-btn m-btn--primary">主操作</button>
+          <button class="m-btn m-btn--weak">次操作</button>
+          <button class="m-btn m-btn--outline">描边</button>
+          <button class="m-btn m-btn--plain">默认</button>
+          <button class="m-btn m-btn--danger-plain">危险操作</button>
+          <button class="m-btn m-btn--primary" disabled>禁用</button>
+        </div>
+        <div class="row">
+          <button class="m-btn m-btn--sm m-btn--primary">小按钮 32</button>
+          <button class="m-btn m-btn--sm m-btn--plain">重置</button>
+          <span class="row-label" style="width: auto">标准 40 / 小 32 / 主 CTA 44（见 demo）</span>
+        </div>
+      </div>
+
+      <div class="doc-panel row-row">
+        <div style="flex: 1; min-width: 300px">
+          <h3>标签 / 徽标 / 芯片</h3>
+          <div class="row">
+            <span class="m-tag m-tag--primary">主色</span>
+            <span class="m-tag m-tag--success">成功</span>
+            <span class="m-tag m-tag--warning">警告</span>
+            <span class="m-tag m-tag--danger">危险</span>
+          </div>
+          <div class="row">
+            <span style="display: inline-flex; position: relative; width: 44px; height: 44px; background: var(--m-fill); border-radius: var(--m-radius-sm); align-items: center; justify-content: center; color: var(--m-text-3)">
+              <svg data-icon="filter"></svg><span class="m-badge">2</span>
+            </span>
+            <span style="display: inline-flex; position: relative; width: 44px; height: 44px; background: var(--m-fill); border-radius: var(--m-radius-sm); align-items: center; justify-content: center; color: var(--m-text-3)">
+              <svg data-icon="bell"></svg><span class="m-badge m-badge--dot"></span>
+            </span>
+            <span class="row-label" style="width: auto">徽标跟随图标右上角（角标数 / 圆点）</span>
+          </div>
+          <div class="row" data-chip-group data-mode="single">
+            <button class="m-chip">近7天</button>
+            <button class="m-chip is-on">近30天</button>
+            <button class="m-chip">本季度</button>
+          </div>
+        </div>
+        <div style="flex: 1; min-width: 300px">
+          <h3>单元格 / 表单</h3>
+          <div class="m-cells">
+            <button class="m-cell" onclick="alert('演示：单元格点击')">
+              <span class="m-cell__icon"><svg data-icon="folder" class="is-20"></svg></span>
+              <span class="m-cell__title">当前项目组</span>
+              <span class="m-cell__value">CT数据平台</span>
+              <svg data-icon="chevron-right" class="is-16 m-cell__arrow"></svg>
+            </button>
+            <div class="m-cell">
+              <span class="m-cell__icon"><svg data-icon="calendar" class="is-20"></svg></span>
+              <span class="m-cell__title">统计日期</span>
+              <span class="m-cell__value">2026-09-16</span>
+            </div>
+          </div>
+          <div style="margin-top: 12px; border: 1px dashed var(--m-border); border-radius: var(--m-radius-md); padding: 4px 12px 12px">
+            <div class="m-field">
+              <div class="m-field__label">图表名称<span class="m-req">*</span></div>
+              <input class="m-input" placeholder="请输入图表名称" />
+            </div>
+            <div class="m-field">
+              <div class="m-field__label">下拉选择（Single/MultiSelectBtn）</div>
+              <button class="m-select" onclick="alert('演示：唤起底部选项弹层')">
+                <span class="m-select__label">字段</span>
+                <span class="m-select__value">GMV（支付口径）</span>
+                <svg data-icon="chevron-down"></svg>
+              </button>
+            </div>
+            <div class="m-field">
+              <div class="m-field__label">日期（DateScope，滚轮选择器）</div>
+              <button class="m-select" onclick="alert('演示：底部滚轮选择器')">
+                <span class="m-select__value is-placeholder">开始日期</span>
+                <svg data-icon="calendar"></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="doc-panel row-row">
+        <div style="flex: 1; min-width: 300px">
+          <h3>空态 / 加载 / 骨架</h3>
+          <div class="row" style="align-items: stretch">
+            <div style="flex: 1; border: 1px dashed var(--m-border); border-radius: var(--m-radius-md)">
+              <div class="m-empty">
+                <div class="m-empty__icon"><svg data-icon="inbox"></svg></div>
+                <div class="m-empty__text">暂无数据</div>
+              </div>
+            </div>
+            <div style="flex: 1; border: 1px dashed var(--m-border); border-radius: var(--m-radius-md)">
+              <div class="m-loading"><div class="m-spinner"></div>加载中…</div>
+            </div>
+          </div>
+          <div style="margin-top: 12px; border: 1px dashed var(--m-border); border-radius: var(--m-radius-md); padding: 16px">
+            <div class="m-skeleton" style="width: 38%"></div>
+            <div class="m-skeleton" style="width: 92%; margin-top: 10px"></div>
+            <div class="m-skeleton" style="width: 76%; margin-top: 10px"></div>
+          </div>
+        </div>
+        <div style="flex: 1; min-width: 300px">
+          <h3>tabbar（恒定 2 项）</h3>
+          <nav class="m-tabbar" style="border: 1px solid var(--m-border); border-radius: var(--m-radius-md); overflow: hidden">
+            <span class="m-tabbar__item is-active"><svg data-icon="apps"></svg><span>导航</span></span>
+            <span class="m-tabbar__item"><svg data-icon="user"></svg><span>我的</span></span>
+          </nav>
+          <p style="font-size: 12px; color: var(--m-text-3); margin-top: 10px; line-height: 1.7">
+            模块详情页（图表/仪表盘/明细）<b>隐藏 tabbar</b>，由顶栏承担返回与菜单；
+            历史上的动态第 4 tab 机制废除。
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ 页面 demo ============ -->
+    <section class="doc-sec" id="sec-pages">
+      <h2><i class="no">05</i>页面 Demo<small>框架内可交互（筛选面板 / 菜单抽屉 / 图表悬浮）</small></h2>
+      <div class="previews">
+        <div class="preview-card">
+          <h4>登录页</h4>
+          <p>品牌区 + 卡片化表单（填充式输入框 36px、验证码 108×36、主按钮 44px）。表单输入字号 16px 防 iOS 聚焦缩放。</p>
+          <div class="frame"><iframe src="pages/login.html?embed=1" title="登录页" loading="lazy" scrolling="no"></iframe></div>
+          <a class="open m-btn m-btn--sm m-btn--outline" href="pages/login.html" target="_blank">全屏打开</a>
+        </div>
+        <div class="preview-card">
+          <h4>导航页</h4>
+          <p>顶栏左返回（回登录页）+ 居中标题「导航」；项目组下拉独立行（GroupS，代替导航标签、居中、上下间距一致）；分组卡片 + 4 列宫格（宫格项 84px 高、图标容器 44px、激活态主色）；分组间距 12、卡片内边距 16。</p>
+          <div class="frame"><iframe src="pages/guide.html?embed=1" title="导航页" loading="lazy" scrolling="no"></iframe></div>
+          <a class="open m-btn m-btn--sm m-btn--outline" href="pages/guide.html" target="_blank">全屏打开</a>
+        </div>
+        <div class="preview-card">
+          <h4>仪表盘页 ★</h4>
+          <p>对应 dashBoard 路由：进入默认打开菜单（ChartMenu 范式）、点菜单项切换后图表卡「请查询」占位（点「查询」填充出图）、多张图表卡（右上角停止/重试、标题下字段下拉、图表区固定高 260）、悬浮底部查询进度条、常驻筛选条（左「菜单」chip + 右侧「筛选」chip 与刷新圆钮）+ 筛选全屏浮层（关键词 + 底部滚轮选择器）、菜单（分类下拉 + 搜索 + 多级树）。</p>
+          <div class="frame"><iframe src="pages/dashboard.html?embed=1" title="仪表盘页" loading="lazy" scrolling="no"></iframe></div>
+          <a class="open m-btn m-btn--sm m-btn--outline" href="pages/dashboard.html" target="_blank">全屏打开</a>
+        </div>
+        <div class="preview-card">
+          <h4>筛选模式参考</h4>
+          <p>筛选控件全形态长页：文本、下拉单选/多选（底部弹层）、开关、数字区间、日期范围（底部滚轮选择器）、级联联动（一级单选联动二级多选）；交互与仪表盘筛选面板同款，卡头标注对应组件名。</p>
+          <div class="frame"><iframe src="pages/filter.html?embed=1" title="筛选模式参考" loading="lazy" scrolling="no"></iframe></div>
+          <a class="open m-btn m-btn--sm m-btn--outline" href="pages/filter.html" target="_blank">全屏打开</a>
+        </div>
+        <div class="preview-card">
+          <h4>错误页（两形态）</h4>
+          <p>对应 errorPage / errorPageHasHeader 两条路由；默认无顶栏形态，页内可切换带/无顶栏；query 参数驱动文案与跳转。</p>
+          <div class="frame"><iframe src="pages/error.html?embed=1" title="错误页" loading="lazy" scrolling="no"></iframe></div>
+          <a class="open m-btn m-btn--sm m-btn--outline" href="pages/error.html" target="_blank">全屏打开</a>
+        </div>
+        <div class="preview-card">
+          <h4>我的</h4>
+          <p>用户信息卡：头像 + 账号信息纵排居中。</p>
+          <div class="frame"><iframe src="pages/mine.html?embed=1" title="我的" loading="lazy" scrolling="no"></iframe></div>
+          <a class="open m-btn m-btn--sm m-btn--outline" href="pages/mine.html" target="_blank">全屏打开</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="doc-footer">
+      <span>FD · MOBILE · UI SPEC v1.0</span>
+      <span>UPDATED 2026-09-17</span>
+      <a href="README.md" target="_blank">docs/mobile/README.md</a>
+      <a href="assets/mobile-ui.css" target="_blank">assets/mobile-ui.css</a>
+    </footer>
+    </div>
+  </div>
+  <script src="assets/demo.js"></script>
+  <script>
+    /* —— 基因条：点击复制 hex —— */
+    document.querySelectorAll('.gene__seg').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var hex = b.getAttribute('data-hex');
+        var done = function (msg) { if (window.mToast) mToast(msg); };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(hex).then(
+            function () { done('已复制 ' + hex); },
+            function () { done(hex); }
+          );
+        } else {
+          done(hex);
+        }
+      });
+    });
+    /* —— 左侧章节导航 scrollspy：章节顶部越过视口 30% 线即激活；hero 区无高亮 —— */
+    (function () {
+      var links = document.querySelectorAll('.doc-side a');
+      var secs = Array.prototype.slice.call(document.querySelectorAll('.doc-sec[id]'));
+      if (!links.length || !secs.length) return;
+      function spy() {
+        var line = scrollY + innerHeight * 0.3;
+        var cur = '';
+        secs.forEach(function (s) {
+          if (s.getBoundingClientRect().top + scrollY <= line) cur = s.id;
+        });
+        links.forEach(function (a) {
+          a.classList.toggle('is-on', a.getAttribute('href').slice(1) === cur);
+        });
+      }
+      addEventListener('scroll', spy, { passive: true });
+      addEventListener('resize', spy);
+      spy();
+    })();
+  </script>
+<!-- Code injected by live-server -->
+<script>
+	// <![CDATA[  <-- For SVG support
+	if ('WebSocket' in window) {
+		(function () {
+			function refreshCSS() {
+				var sheets = [].slice.call(document.getElementsByTagName("link"));
+				var head = document.getElementsByTagName("head")[0];
+				for (var i = 0; i < sheets.length; ++i) {
+					var elem = sheets[i];
+					var parent = elem.parentElement || head;
+					parent.removeChild(elem);
+					var rel = elem.rel;
+					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
+						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
+						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
+					}
+					parent.appendChild(elem);
+				}
+			}
+			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+			var address = protocol + window.location.host + window.location.pathname + '/ws';
+			var socket = new WebSocket(address);
+			socket.onmessage = function (msg) {
+				if (msg.data == 'reload') window.location.reload();
+				else if (msg.data == 'refreshcss') refreshCSS();
+			};
+			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
+				console.log('Live reload enabled.');
+				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
+			}
+		})();
+	}
+	else {
+		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
+	}
+	// ]]>
+</script>
+</body>
+</html>

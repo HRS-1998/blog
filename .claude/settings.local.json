@@ -70,7 +70,11 @@
       "Bash(cygpath -w /tmp)",
       "Bash(awk '/^```/{infence=!infence;next} !infence && /^#/ && NR<1070 {if \\(getline nxt <= 0\\) next; if \\(nxt != \"\"\\) print \"NO-BLANK-AFTER line \" NR \": \" $0}' 09-build.md)",
       "Bash(awk '/^```/{f=!f;next} !f && /<[a-z]+[ >\\\\/]/ && $0 !~ /`[^`]*<[^`]*>/ {print NR\": \"$0}' \"D:\\\\githrs\\\\blog\\\\docs\\\\src\\\\pages\\\\interview\\\\ms\\\\题库\\\\14-h5.md\")",
-      "Bash(awk 'NR>1 && /^#/ {if \\(prev != \"\" \\) print \"NO-BLANK-BEFORE line \" NR\": \"$0; if \\(getline nxt > 0 && nxt !~ /^$/\\) {if \\(nxt != \"\"\\) print \"NO-BLANK-AFTER line \" NR\": \"$0} else {}} {prev=$0}' \"D:\\\\githrs\\\\blog\\\\docs\\\\src\\\\pages\\\\interview\\\\ms\\\\题库\\\\14-h5.md\")"
+      "Bash(awk 'NR>1 && /^#/ {if \\(prev != \"\" \\) print \"NO-BLANK-BEFORE line \" NR\": \"$0; if \\(getline nxt > 0 && nxt !~ /^$/\\) {if \\(nxt != \"\"\\) print \"NO-BLANK-AFTER line \" NR\": \"$0} else {}} {prev=$0}' \"D:\\\\githrs\\\\blog\\\\docs\\\\src\\\\pages\\\\interview\\\\ms\\\\题库\\\\14-h5.md\")",
+      "Bash(awk '/^```/{c++} END{print c}' docs/src/pages/designPattern/__TRACKED_VAR__)",
+      "Bash(awk '/^```/{in_block=!in_block; next} !in_block && /^\\\\|/{n=gsub\\(/\\\\|/,\"|\"\\); if\\(prev && n!=prev\\){print FILENAME\": row with \"n\" pipes \\(prev \"prev\"\\) line \"NR}; prev=n; next} !in_block{prev=0}' 11-享元模式.md 12-职责链模式.md 13-装饰者模式.md 14-适配器模式.md)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(sort -k2)"
     ]
   }
 }

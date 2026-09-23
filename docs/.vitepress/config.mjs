@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitepress';
+import mark from 'markdown-it-mark';
 // .vitepress/config.js
 export default defineConfig({
   // 站点级选项
@@ -19,6 +20,11 @@ export default defineConfig({
   appearance: true,
   lastUpdated: true,
   ignoreDeadLinks: true, //这里打包时忽略本地链接导致的无效
+  markdown: {
+    config(md) {
+      md.use(mark); // 支持 ==高亮== 语法渲染为 <mark>
+    },
+  },
   themeConfig: {
     // 主题级选项
     search: {
@@ -29,7 +35,11 @@ export default defineConfig({
           modal: {
             noResultsText: '未找到相关结果',
             resetButtonTitle: '清除查询条件',
-            footer: { selectText: '选择', navigateText: '切换', closeText: '关闭' },
+            footer: {
+              selectText: '选择',
+              navigateText: '切换',
+              closeText: '关闭',
+            },
           },
         },
       },
@@ -83,7 +93,10 @@ export default defineConfig({
                 text: '数据类型转换',
                 link: '/pages/language/js/数据类型转换.md',
               },
-              { text: 'promise及其应用', link: '/pages/language/js/promise.md' },
+              {
+                text: 'promise及其应用',
+                link: '/pages/language/js/promise.md',
+              },
               {
                 text: 'NodeList与HTMLCollection',
                 link: '/pages/language/js/test.md',
@@ -119,7 +132,10 @@ export default defineConfig({
           { text: 'postcss', link: '/pages/enginee/postcss/index.md' },
           { text: 'pnpm深度解析', link: '/pages/interview/ms/pnpm.md' },
           { text: 'vite配置', link: '/pages/interview/ms/vite_config.md' },
-          { text: 'webpack配置', link: '/pages/interview/ms/webpack_config.md' },
+          {
+            text: 'webpack配置',
+            link: '/pages/interview/ms/webpack_config.md',
+          },
         ],
         collapsed: true,
       },
@@ -149,15 +165,24 @@ export default defineConfig({
               { text: '综合题库', link: '/pages/interview/ms/项目.md' },
               { text: 'JS', link: '/pages/interview/ms/题库/01-js.md' },
               { text: 'TS', link: '/pages/interview/ms/题库/02-ts.md' },
-              { text: 'HTML/DOM', link: '/pages/interview/ms/题库/03-html-dom.md' },
+              {
+                text: 'HTML/DOM',
+                link: '/pages/interview/ms/题库/03-html-dom.md',
+              },
               { text: 'CSS', link: '/pages/interview/ms/题库/04-css.md' },
-              { text: '浏览器', link: '/pages/interview/ms/题库/05-browser.md' },
+              {
+                text: '浏览器',
+                link: '/pages/interview/ms/题库/05-browser.md',
+              },
               { text: 'HTTP', link: '/pages/interview/ms/题库/06-http.md' },
               { text: 'Vue', link: '/pages/interview/ms/题库/07-vue.md' },
               { text: 'React', link: '/pages/interview/ms/题库/08-react.md' },
               { text: '构建', link: '/pages/interview/ms/题库/09-build.md' },
               { text: 'CI/CD', link: '/pages/interview/ms/题库/10-cicd.md' },
-              { text: '小程序', link: '/pages/interview/ms/题库/11-miniprogram.md' },
+              {
+                text: '小程序',
+                link: '/pages/interview/ms/题库/11-miniprogram.md',
+              },
               { text: '跨端', link: '/pages/interview/ms/题库/12-client.md' },
               { text: 'Node', link: '/pages/interview/ms/题库/13-node.md' },
               { text: 'H5', link: '/pages/interview/ms/题库/14-h5.md' },
@@ -181,12 +206,18 @@ export default defineConfig({
           { text: '策略模式', link: '/pages/designPattern/02-策略模式.md' },
           { text: '代理模式', link: '/pages/designPattern/03-代理模式.md' },
           { text: '迭代器模式', link: '/pages/designPattern/04-迭代器模式.md' },
-          { text: '发布订阅模式', link: '/pages/designPattern/05-发布订阅模式.md' },
+          {
+            text: '发布订阅模式',
+            link: '/pages/designPattern/05-发布订阅模式.md',
+          },
           { text: '中介者模式', link: '/pages/designPattern/06-中介者模式.md' },
           { text: '状态模式', link: '/pages/designPattern/07-状态模式.md' },
           { text: '命令模式', link: '/pages/designPattern/08-命令模式.md' },
           { text: '组合模式', link: '/pages/designPattern/09-组合模式.md' },
-          { text: '模板方法模式', link: '/pages/designPattern/10-模板方法模式.md' },
+          {
+            text: '模板方法模式',
+            link: '/pages/designPattern/10-模板方法模式.md',
+          },
           { text: '享元模式', link: '/pages/designPattern/11-享元模式.md' },
           { text: '职责链模式', link: '/pages/designPattern/12-职责链模式.md' },
           { text: '装饰者模式', link: '/pages/designPattern/13-装饰者模式.md' },
@@ -248,10 +279,10 @@ export default defineConfig({
               { text: '后台ui规范', link: '/pages/ct/开发规范/后台ui规范.md' },
               { text: '技术评审', link: '/pages/ct/开发规范/技术评审.md' },
               { text: '接口规范', link: '/pages/ct/开发规范/接口规范.md' },
-              {
-                text: '新后台UI规范',
-                link: '/pages/ct/开发规范/新后台UI规范.md',
-              },
+              //   {
+              //     text: '新后台UI规范',
+              //     link: '/pages/ct/开发规范/新后台UI规范.md',
+              //   },
             ],
             collapsed: true,
           },
@@ -347,9 +378,15 @@ export default defineConfig({
                 text: '多终端解决方案',
                 link: '/pages/ct/知识库/多终端解决方案.md',
               },
-              { text: '各浏览器hack', link: '/pages/ct/知识库/各浏览器hack.md' },
+              {
+                text: '各浏览器hack',
+                link: '/pages/ct/知识库/各浏览器hack.md',
+              },
               { text: '微信分享', link: '/pages/ct/知识库/微信分享.md' },
-              { text: '微信分享自带', link: '/pages/ct/知识库/微信分享自带.md' },
+              {
+                text: '微信分享自带',
+                link: '/pages/ct/知识库/微信分享自带.md',
+              },
               {
                 text: '移动端页面head',
                 link: '/pages/ct/知识库/移动端页面head.md',
@@ -359,7 +396,10 @@ export default defineConfig({
                 text: '移动平台问题列表',
                 link: '/pages/ct/知识库/移动平台问题列表.md',
               },
-              { text: '移动资源公告', link: '/pages/ct/知识库/移动资源公告.md' },
+              {
+                text: '移动资源公告',
+                link: '/pages/ct/知识库/移动资源公告.md',
+              },
             ],
             collapsed: true,
           },
